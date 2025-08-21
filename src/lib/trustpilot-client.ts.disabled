@@ -1,0 +1,333 @@
+// NOTE: This file is not used in the current SSR architecture
+// Commenting out imports to prevent TypeScript errors
+// import { 
+//   ApiResponse, 
+//   FetchReviewsParams, 
+//   ApiResponseSchema,
+//   FetchReviewsParamsSchema,
+//   API_ERROR_CODES 
+// } from './types';
+import { FetchReviewsParams } from './types';
+// import { API_CONFIG, ERROR_MESSAGES } from './config';
+// import { createError, SimpleCache } from './utils';
+
+// ============================================
+// TRUSTPILOT CLIENT CLASS
+// ============================================
+
+export class TrustpilotClient {
+  private baseUrl: string;
+  private cache: SimpleCache<ApiResponse>;
+  private timeout: number;
+
+  constructor(baseUrl: string = '/api/reviews') {
+    this.baseUrl = baseUrl;
+    this.cache = new SimpleCache<ApiResponse>(API_CONFIG.cache.ttl);
+    this.timeout = API_CONFIG.timeout;
+  }
+
+  /**
+   * Fetches reviews from the API
+   */
+  async fetchReviews(params: FetchReviewsParams): Promise<ApiResponse> {
+    try {
+      // Validate parameters
+      const validatedParams = FetchReviewsParamsSchema.parse(params);
+      
+      // Create cache key
+      const cacheKey = this.createCacheKey(validatedParams);
+      
+      // Check cache first
+      const cachedData = this.cache.get(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+
+      // Build URL with parameters
+      const url = this.buildUrl(validatedParams);
+      
+      // Make API request
+      const response = await this.makeRequest(url);
+      
+      // Parse and validate response
+      const data = await response.json();
+      const validatedResponse = ApiResponseSchema.parse(data);
+      
+      // Cache successful responses
+      if (validatedResponse.success) {
+        this.cache.set(cacheKey, validatedResponse);
+      }
+      
+      return validatedResponse;
+
+    } catch (error) {
+      console.error('TrustpilotClient Error:', error);
+      return this.handleError(error);
+    }
+  }
+
+  /**
+   * Clears the cache
+   */
+  clearCache(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Gets cache size
+   */
+  getCacheSize(): number {
+    return this.cache.size();
+  }
+
+  // ============================================
+  // PRIVATE METHODS
+  // ============================================
+
+  private buildUrl(params: FetchReviewsParams): string {
+    const url = new URL(this.baseUrl, 
+      typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+    );
+    
+    // Add query parameters
+    url.searchParams.set('domain', params.domain);
+    if (params.page && params.page !== 1) {
+      url.searchParams.set('page', params.page.toString());
+    }
+    if (params.limit && params.limit !== 10) {
+      url.searchParams.set('limit', params.limit.toString());
+    }
+    if (params.rating) {
+      url.searchParams.set('rating', params.rating.toString());
+    }
+    if (params.sort && params.sort !== 'latest') {
+      url.searchParams.set('sort', params.sort);
+    }
+
+    return url.toString();
+  }
+
+  private async makeRequest(url: string): Promise<Response> {
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw createError(
+          this.getErrorCodeFromStatus(response.status),
+          `HTTP ${response.status}: ${response.statusText}`,
+          response.status
+        );
+      }
+
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw createError(
+          API_ERROR_CODES.TIMEOUT,
+          ERROR_MESSAGES.TIMEOUT
+        );
+      }
+      
+      throw error;
+    }
+  }
+
+  private createCacheKey(params: FetchReviewsParams): string {
+    const { domain, page = 1, limit = 10, rating, sort = 'latest' } = params;
+    return `reviews-${domain}-${page}-${limit}-${rating || 'all'}-${sort}`;
+  }
+
+  private getErrorCodeFromStatus(status: number): string {
+    switch (status) {
+      case 400:
+        return API_ERROR_CODES.VALIDATION_ERROR;
+      case 404:
+        return API_ERROR_CODES.INVALID_DOMAIN;
+      case 429:
+        return API_ERROR_CODES.RATE_LIMIT_EXCEEDED;
+      case 502:
+      case 503:
+      case 504:
+        return API_ERROR_CODES.EXTERNAL_API_ERROR;
+      default:
+        return API_ERROR_CODES.INTERNAL_SERVER_ERROR;
+    }
+  }
+
+  private handleError(error: unknown): ApiResponse {
+    if (error instanceof Error) {
+      const apiError = error as Error & { code?: string; status?: number; details?: any };
+      
+      return {
+        success: false,
+        error: {
+          code: apiError.code || API_ERROR_CODES.CLIENT_ERROR,
+          message: apiError.message || ERROR_MESSAGES.CLIENT_ERROR,
+          details: apiError.details,
+        },
+      };
+    }
+
+    return {
+      success: false,
+      error: {
+        code: API_ERROR_CODES.CLIENT_ERROR,
+        message: ERROR_MESSAGES.CLIENT_ERROR,
+        details: String(error),
+      },
+    };
+  }
+}
+
+// ============================================
+// SINGLETON INSTANCE
+// ============================================
+
+/**
+ * Default TrustpilotClient instance
+ */
+export const trustpilotClient = new TrustpilotClient();
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Quick function to fetch reviews with default client
+ */
+export async function fetchReviews(params: FetchReviewsParams): Promise<ApiResponse> {
+  return trustpilotClient.fetchReviews(params);
+}
+
+/**
+ * Creates a new TrustpilotClient with custom configuration
+ */
+export function createTrustpilotClient(baseUrl?: string): TrustpilotClient {
+  return new TrustpilotClient(baseUrl);
+}
+
+/**
+ * Preloads reviews for better user experience
+ */
+export async function preloadReviews(domains: string[]): Promise<void> {
+  const promises = domains.map(domain => 
+    trustpilotClient.fetchReviews({ domain, page: 1, limit: 5 })
+  );
+  
+  try {
+    await Promise.allSettled(promises);
+  } catch (error) {
+    console.warn('Failed to preload some reviews:', error);
+  }
+}
+
+// ============================================
+// MOCK DATA FOR DEVELOPMENT
+// ============================================
+
+export const MOCK_REVIEWS_RESPONSE: ApiResponse = {
+  success: true,
+  data: {
+    reviews: [
+      {
+        id: 'review_1',
+        author: {
+          name: 'John Smith',
+          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face',
+          location: 'New York, US'
+        },
+        rating: 5,
+        title: 'Excellent service!',
+        content: 'I had a wonderful experience with this company. The customer service was outstanding and the product quality exceeded my expectations.',
+        date: '2024-01-15T10:30:00Z',
+        verified: true,
+        helpful: 15,
+        reply: {
+          content: 'Thank you so much for your kind words! We appreciate your business.',
+          date: '2024-01-16T09:00:00Z',
+          author: 'Customer Service Team'
+        }
+      },
+      {
+        id: 'review_2',
+        author: {
+          name: 'Sarah Johnson',
+          avatar: 'https://images.unsplash.com/photo-1494790108755-2616b723b2e4?w=64&h=64&fit=crop&crop=face',
+          location: 'London, UK'
+        },
+        rating: 4,
+        title: 'Very good experience',
+        content: 'Great product and fast delivery. Would definitely recommend to others.',
+        date: '2024-01-10T14:20:00Z',
+        verified: true,
+        helpful: 8
+      },
+      {
+        id: 'review_3',
+        author: {
+          name: 'Mike Rodriguez',
+          location: 'Barcelona, ES'
+        },
+        rating: 5,
+        title: 'Perfect!',
+        content: 'Everything was perfect from start to finish. Highly recommend!',
+        date: '2024-01-08T16:45:00Z',
+        verified: true,
+        helpful: 12
+      }
+    ],
+    pagination: {
+      current_page: 1,
+      total_pages: 5,
+      total_reviews: 47,
+      per_page: 10
+    },
+    company: {
+      name: 'Example Company',
+      domain: 'example.com',
+      average_rating: 4.2,
+      total_reviews: 47,
+      trustpilot_url: 'https://trustpilot.com/review/example.com'
+    }
+  },
+  cache: {
+    ttl: 300,
+    cached_at: new Date().toISOString()
+  }
+};
+
+/**
+ * Returns mock data for development
+ */
+export function getMockReviews(params: FetchReviewsParams): Promise<ApiResponse> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        ...MOCK_REVIEWS_RESPONSE,
+        data: {
+          ...MOCK_REVIEWS_RESPONSE.data!,
+          company: {
+            ...MOCK_REVIEWS_RESPONSE.data!.company,
+            domain: params.domain,
+            name: params.domain.charAt(0).toUpperCase() + params.domain.slice(1),
+          }
+        }
+      });
+    }, 1000); // Simulate network delay
+  });
+}

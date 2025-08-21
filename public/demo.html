@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trustpilot Carrousel Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            border-bottom: 2px solid #00b67a;
+            padding-bottom: 10px;
+        }
+        
+        .iframe-container {
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .iframe-container iframe {
+            display: block;
+            width: 100%;
+            border: none;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #495057;
+            overflow-x: auto;
+        }
+        
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .params-table th,
+        .params-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .params-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        .required {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .optional {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎠 Trustpilot Reviews Carrousel - Demo</h1>
+        <p>Embeddable iframe widget for displaying customer reviews in an elegant carousel format.</p>
+
+        <!-- Basic Example -->
+        <div class="demo-section">
+            <h2>📍 Basic Example</h2>
+            <p>Simple carrousel with default settings for Google reviews:</p>
+            
+            <div class="iframe-container">
+                <iframe 
+                    src="http://localhost:4828/?domain=www.google.com"
+                    width="100%" 
+                    height="400"
+                    title="Basic Trustpilot Reviews Carrousel">
+                </iframe>
+            </div>
+            
+            <div class="code-block">
+&lt;iframe 
+  src="http://localhost:4828/?domain=www.google.com"
+  width="100%" 
+  height="400"
+  frameborder="0"&gt;
+&lt;/iframe&gt;
+            </div>
+        </div>
+
+        <!-- Dark Theme Example -->
+        <div class="demo-section">
+            <h2>🌙 Dark Theme Example</h2>
+            <p>Same carrousel with dark theme and slower autoplay:</p>
+            
+            <div class="iframe-container">
+                <iframe 
+                    src="http://localhost:4828/?domain=www.google.com&theme=dark&interval=8000"
+                    width="100%" 
+                    height="400"
+                    title="Dark Theme Trustpilot Reviews Carrousel">
+                </iframe>
+            </div>
+            
+            <div class="code-block">
+&lt;iframe 
+  src="http://localhost:4828/?domain=www.google.com&theme=dark&interval=8000"
+  width="100%" 
+  height="400"
+  frameborder="0"&gt;
+&lt;/iframe&gt;
+            </div>
+        </div>
+
+        <!-- High Quality Reviews -->
+        <div class="demo-section">
+            <h2>⭐ High Quality Reviews Only</h2>
+            <p>Display only 4-5 star reviews with custom height:</p>
+            
+            <div class="iframe-container">
+                <iframe 
+                    src="http://localhost:4828/?domain=www.google.com&minRating=4&maxReviews=5&height=350"
+                    width="100%" 
+                    height="350"
+                    title="High Quality Trustpilot Reviews">
+                </iframe>
+            </div>
+            
+            <div class="code-block">
+&lt;iframe 
+  src="http://localhost:4828/?domain=www.google.com&minRating=4&maxReviews=5&height=350"
+  width="100%" 
+  height="350"
+  frameborder="0"&gt;
+&lt;/iframe&gt;
+            </div>
+        </div>
+
+        <!-- Configuration Parameters -->
+        <div class="demo-section">
+            <h2>⚙️ Configuration Parameters</h2>
+            <p>All available parameters for customizing the carrousel:</p>
+            
+            <table class="params-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Type</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="required">domain*</span></td>
+                        <td>string</td>
+                        <td>-</td>
+                        <td>Domain to fetch reviews for (required)</td>
+                        <td>www.google.com</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">page</span></td>
+                        <td>number</td>
+                        <td>1</td>
+                        <td>Page of reviews to display</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">autoplay</span></td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Enable automatic sliding</td>
+                        <td>true</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">interval</span></td>
+                        <td>number</td>
+                        <td>5000</td>
+                        <td>Autoplay interval in milliseconds</td>
+                        <td>3000</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">theme</span></td>
+                        <td>light|dark</td>
+                        <td>light</td>
+                        <td>Visual theme</td>
+                        <td>dark</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">maxReviews</span></td>
+                        <td>number</td>
+                        <td>10</td>
+                        <td>Maximum number of reviews (1-50)</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">minRating</span></td>
+                        <td>1|2|3|4|5</td>
+                        <td>1</td>
+                        <td>Minimum star rating to show</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">showRating</span></td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Display star ratings</td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">showDate</span></td>
+                        <td>boolean</td>
+                        <td>true</td>
+                        <td>Display review dates</td>
+                        <td>false</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">height</span></td>
+                        <td>number</td>
+                        <td>400</td>
+                        <td>Height of the iframe in pixels</td>
+                        <td>300</td>
+                    </tr>
+                    <tr>
+                        <td><span class="optional">sort</span></td>
+                        <td>latest|rating</td>
+                        <td>latest</td>
+                        <td>Sort order for reviews</td>
+                        <td>rating</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Complex Example -->
+        <div class="demo-section">
+            <h2>🎛️ Complex Configuration Example</h2>
+            <p>Fully customized carrousel with all parameters:</p>
+            
+            <div class="iframe-container">
+                <iframe 
+                    src="http://localhost:4828/?domain=www.google.com&page=1&autoplay=true&interval=4000&theme=light&maxReviews=8&minRating=3&showRating=true&showDate=true&height=450&sort=rating"
+                    width="100%" 
+                    height="450"
+                    title="Fully Customized Trustpilot Reviews">
+                </iframe>
+            </div>
+            
+            <div class="code-block">
+&lt;iframe 
+  src="http://localhost:4828/?domain=www.google.com&page=1&autoplay=true&interval=4000&theme=light&maxReviews=8&minRating=3&showRating=true&showDate=true&height=450&sort=rating"
+  width="100%" 
+  height="450"
+  frameborder="0"&gt;
+&lt;/iframe&gt;
+            </div>
+        </div>
+
+        <!-- Integration Guide -->
+        <div class="demo-section">
+            <h2>📚 Quick Integration Guide</h2>
+            
+            <h3>1. Basic Integration</h3>
+            <p>Add the iframe to your website with the domain parameter:</p>
+            <div class="code-block">
+&lt;iframe 
+  src="https://your-domain.com/?domain=YOUR_DOMAIN"
+  width="100%" 
+  height="400"
+  frameborder="0"&gt;
+&lt;/iframe&gt;
+            </div>
+            
+            <h3>2. Responsive Integration</h3>
+            <p>For responsive design, wrap the iframe in a container:</p>
+            <div class="code-block">
+&lt;div style="position: relative; width: 100%; height: 400px;"&gt;
+  &lt;iframe 
+    src="https://your-domain.com/?domain=YOUR_DOMAIN"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+    frameborder="0"&gt;
+  &lt;/iframe&gt;
+&lt;/div&gt;
+            </div>
+            
+            <h3>3. WordPress Integration</h3>
+            <p>Add to your WordPress post or page:</p>
+            <div class="code-block">
+[iframe src="https://your-domain.com/?domain=YOUR_DOMAIN" width="100%" height="400"]
+            </div>
+        </div>
+
+        <footer style="text-align: center; margin-top: 40px; color: #666; font-size: 14px;">
+            <p>🎠 <strong>Trustpilot Reviews Carrousel</strong> - Powered by Next.js, Swiper.js & Tailwind CSS</p>
+        </footer>
+    </div>
+
+    <script>
+        // Add some interactivity to demonstrate the iframes are working
+        document.addEventListener('DOMContentLoaded', function() {
+            const iframes = document.querySelectorAll('iframe');
+            
+            iframes.forEach(function(iframe) {
+                iframe.addEventListener('load', function() {
+                    console.log('Iframe loaded:', iframe.src);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
