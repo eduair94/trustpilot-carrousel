@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay, A11y } from 'swiper/modules';
-import { ReviewCard } from './ReviewCard';
-import { NormalizedReview, NormalizedCompanyInfo } from '@/lib/types';
-import { ThemeConfig } from '@/lib/types';
+import {
+  NormalizedCompanyInfo,
+  NormalizedReview,
+  ThemeConfig,
+} from '@/lib/types';
 import { cn } from '@/lib/utils';
+import React, { useEffect, useState } from 'react';
+import { A11y, Autoplay, Navigation, Pagination } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { ReviewCard } from './ReviewCard';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -23,6 +26,8 @@ interface CarrouselConfig {
   theme: ThemeConfig;
   showRating: boolean;
   showDate: boolean;
+  showAvatar: boolean;
+  showReply: boolean;
   maxReviews: number;
   height: number;
 }
@@ -56,6 +61,8 @@ export function ClientCarrousel({
     theme,
     showRating,
     showDate,
+    showAvatar,
+    showReply,
     maxReviews,
     height,
   } = config;
@@ -100,10 +107,10 @@ export function ClientCarrousel({
           borderColor: theme.colors.border,
         }}
       >
-        <div className="text-center p-6">
-          <div className="text-2xl mb-2">📝</div>
-          <div className="text-sm font-medium mb-1">No reviews available</div>
-          <div className="text-xs opacity-75">
+        <div className='text-center p-6'>
+          <div className='text-2xl mb-2'>📝</div>
+          <div className='text-sm font-medium mb-1'>No reviews available</div>
+          <div className='text-xs opacity-75'>
             No reviews found for {company.domain}
           </div>
         </div>
@@ -115,26 +122,32 @@ export function ClientCarrousel({
   if (!isClient) {
     return (
       <div
-        className={cn('w-full h-full relative overflow-hidden rounded-lg', className)}
+        className={cn(
+          'w-full h-full relative overflow-hidden rounded-lg',
+          className
+        )}
         style={containerStyles}
       >
         {/* Company Header */}
-        <div className="px-6 py-4 border-b" style={{ borderColor: theme.colors.border }}>
-          <div className="flex items-center justify-between">
+        <div
+          className='px-6 py-4 border-b'
+          style={{ borderColor: theme.colors.border }}
+        >
+          <div className='flex items-center justify-between'>
             <div>
-              <h2 className="text-lg font-semibold">{company.name}</h2>
-              <div className="flex items-center gap-2 text-sm opacity-75">
+              <h2 className='text-lg font-semibold'>{company.name}</h2>
+              <div className='flex items-center gap-2 text-sm opacity-75'>
                 <span>⭐ {company.average_rating.toFixed(1)}</span>
                 <span>•</span>
                 <span>{company.total_reviews} reviews</span>
               </div>
             </div>
-            <div className="text-xs opacity-50">
-              <a 
+            <div className='text-xs opacity-50'>
+              <a
                 href={company.trustpilot_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:underline"
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:underline'
                 style={{ color: theme.colors.primary }}
               >
                 View on Trustpilot
@@ -144,12 +157,12 @@ export function ClientCarrousel({
         </div>
 
         {/* Loading skeleton */}
-        <div 
-          className="p-4 flex items-center justify-center"
+        <div
+          className='p-4 flex items-center justify-center'
           style={{ height: `${height - 80}px` }}
         >
-          <div className="animate-pulse text-center">
-            <div className="text-sm opacity-60">Loading carrousel...</div>
+          <div className='animate-pulse text-center'>
+            <div className='text-sm opacity-60'>Loading carrousel...</div>
           </div>
         </div>
       </div>
@@ -158,26 +171,32 @@ export function ClientCarrousel({
 
   return (
     <div
-      className={cn('w-full h-full relative overflow-hidden rounded-lg', className)}
+      className={cn(
+        'w-full h-full relative overflow-hidden rounded-lg',
+        className
+      )}
       style={containerStyles}
     >
       {/* Company Header */}
-      <div className="px-6 py-4 border-b" style={{ borderColor: theme.colors.border }}>
-        <div className="flex items-center justify-between">
+      <div
+        className='px-6 py-4 border-b'
+        style={{ borderColor: theme.colors.border }}
+      >
+        <div className='flex items-center justify-between'>
           <div>
-            <h2 className="text-lg font-semibold">{company.name}</h2>
-            <div className="flex items-center gap-2 text-sm opacity-75">
+            <h2 className='text-lg font-semibold'>{company.name}</h2>
+            <div className='flex items-center gap-2 text-sm opacity-75'>
               <span>⭐ {company.average_rating.toFixed(1)}</span>
               <span>•</span>
               <span>{company.total_reviews} reviews</span>
             </div>
           </div>
-          <div className="text-xs opacity-50">
-            <a 
+          <div className='text-xs opacity-50'>
+            <a
               href={company.trustpilot_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
+              target='_blank'
+              rel='noopener noreferrer'
+              className='hover:underline'
               style={{ color: theme.colors.primary }}
             >
               View on Trustpilot
@@ -187,8 +206,8 @@ export function ClientCarrousel({
       </div>
 
       {/* Reviews Carousel */}
-      <div 
-        className="relative"
+      <div
+        className='relative'
         style={{ height: `${height - 80}px` }} // Subtract header height
       >
         <Swiper
@@ -203,11 +222,15 @@ export function ClientCarrousel({
             clickable: true,
             dynamicBullets: true,
           }}
-          autoplay={autoplay ? {
-            delay: interval,
-            disableOnInteraction: false,
-            pauseOnMouseEnter: true,
-          } : false}
+          autoplay={
+            autoplay
+              ? {
+                  delay: interval,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                }
+              : false
+          }
           loop={displayReviews.length > 1}
           speed={600}
           grabCursor={true}
@@ -219,7 +242,7 @@ export function ClientCarrousel({
             nextSlideMessage: 'Next review',
             paginationBulletMessage: 'Go to review {{index}}',
           }}
-          className="h-full"
+          className='h-full'
           style={{
             ...navigationStyles,
             ...paginationStyles,
@@ -242,15 +265,17 @@ export function ClientCarrousel({
             },
           }}
         >
-          {displayReviews.map((review) => (
-            <SwiperSlide key={review.id} className="h-full">
-              <div className="p-4 h-full">
+          {displayReviews.map(review => (
+            <SwiperSlide key={review.id} className='h-full'>
+              <div className='p-4 h-full'>
                 <ReviewCard
                   review={review}
                   theme={theme}
                   showRating={showRating}
                   showDate={showDate}
-                  className="h-full"
+                  showAvatar={showAvatar}
+                  showReply={showReply}
+                  className='h-full'
                 />
               </div>
             </SwiperSlide>
@@ -259,8 +284,8 @@ export function ClientCarrousel({
       </div>
 
       {/* Footer with branding */}
-      <div 
-        className="absolute bottom-0 right-0 px-2 py-1 text-xs opacity-40"
+      <div
+        className='absolute bottom-0 right-0 px-2 py-1 text-xs opacity-40'
         style={{ color: theme.colors.textSecondary }}
       >
         Powered by Trustpilot

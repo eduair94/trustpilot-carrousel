@@ -1,18 +1,20 @@
-import { Suspense } from 'react';
-import { headers } from 'next/headers';
-import { notFound } from 'next/navigation';
-import { z } from 'zod';
-import { ReviewsCarrousel } from '@/components/ReviewsCarrousel';
-import { TrustpilotServerClient, getReviewsData } from '@/lib/trustpilot-server';
-import { NormalizedReviewsData } from '@/lib/types';
+import { DemoPage } from '@/components/DemoPage';
 import { CARROUSEL_CONFIG } from '@/lib/config';
+import {
+  TrustpilotServerClient,
+  getReviewsData,
+} from '@/lib/trustpilot-server';
+import { NormalizedReviewsData } from '@/lib/types';
+import { headers } from 'next/headers';
+import { z } from 'zod';
+import { ReviewsCarrouselClient } from '../components/ReviewsCarrouselClient';
 
 // ============================================
 // SEARCH PARAMS VALIDATION
 // ============================================
 
 const SearchParamsSchema = z.object({
-  domain: z.string().min(1, 'Domain is required'),
+  domain: z.string().optional(), // Make domain optional
   page: z.coerce.number().min(1).default(1),
   autoplay: z.coerce.boolean().default(true),
   interval: z.coerce.number().min(1000).max(10000).default(5000),
@@ -20,10 +22,13 @@ const SearchParamsSchema = z.object({
   maxReviews: z.coerce.number().min(1).max(50).default(10),
   minRating: z.coerce.number().min(1).max(5).default(1),
   language: z.string().default('en'),
-  showRating: z.coerce.boolean().default(true),
-  showDate: z.coerce.boolean().default(true),
+  hideRating: z.coerce.boolean().default(false),
+  hideDate: z.coerce.boolean().default(false),
+  hideAvatar: z.coerce.boolean().default(false),
+  hideReply: z.coerce.boolean().default(false),
   height: z.coerce.number().min(200).max(800).default(400),
   sort: z.enum(['latest', 'rating']).default('latest'),
+  autoHeight: z.coerce.boolean().default(false),
 });
 
 // ============================================
@@ -32,8 +37,8 @@ const SearchParamsSchema = z.object({
 
 function CarrouselSkeleton() {
   return (
-    <div className="w-full h-96 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
-      <div className="text-gray-400 text-sm">Loading reviews...</div>
+    <div className='w-full h-96 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center'>
+      <div className='text-gray-400 text-sm'>Loading reviews...</div>
     </div>
   );
 }
@@ -49,15 +54,17 @@ interface ErrorDisplayProps {
 
 function ErrorDisplay({ message, theme }: ErrorDisplayProps) {
   return (
-    <div className={`w-full h-96 rounded-lg border flex items-center justify-center ${
-      theme === 'dark' 
-        ? 'bg-gray-900 border-gray-700 text-gray-300' 
-        : 'bg-gray-50 border-gray-200 text-gray-600'
-    }`}>
-      <div className="text-center p-6">
-        <div className="text-red-500 mb-2">⚠️</div>
-        <div className="text-sm font-medium mb-1">Unable to load reviews</div>
-        <div className="text-xs opacity-75">{message}</div>
+    <div
+      className={`w-full h-96 rounded-lg border flex items-center justify-center ${
+        theme === 'dark'
+          ? 'bg-gray-900 border-gray-700 text-gray-300'
+          : 'bg-gray-50 border-gray-200 text-gray-600'
+      }`}
+    >
+      <div className='text-center p-6'>
+        <div className='text-red-500 mb-2'>⚠️</div>
+        <div className='text-sm font-medium mb-1'>Unable to load reviews</div>
+        <div className='text-xs opacity-75'>{message}</div>
       </div>
     </div>
   );
@@ -75,22 +82,27 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
   try {
     // Await searchParams as required by Next.js 15
     const searchParamsData = await searchParams;
-    
+
     // Validate and parse search parameters
     const rawParams = Object.fromEntries(
       Object.entries(searchParamsData).map(([key, value]) => [
-        key, 
-        Array.isArray(value) ? value[0] : value
+        key,
+        Array.isArray(value) ? value[0] : value,
       ])
     );
 
     const validatedParams = SearchParamsSchema.parse(rawParams);
-    
+
+    // If no domain is provided, show the demo page
+    if (!validatedParams.domain) {
+      return <DemoPage />;
+    }
+
     // Validate domain format
     if (!TrustpilotServerClient.validateDomain(validatedParams.domain)) {
       return (
-        <ErrorDisplay 
-          message="Invalid domain format" 
+        <ErrorDisplay
+          message='Invalid domain format'
           theme={validatedParams.theme}
         />
       );
@@ -98,20 +110,26 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
 
     // Get client IP for rate limiting
     const headersList = await headers();
-    const clientIP = TrustpilotServerClient.getClientIP(Object.fromEntries(headersList.entries()));
+    const clientIP = TrustpilotServerClient.getClientIP(
+      Object.fromEntries(headersList.entries())
+    );
 
     // Fetch reviews data on the server
-    const reviewsData: NormalizedReviewsData | null = await getReviewsData({
-      domain: validatedParams.domain,
-      page: validatedParams.page,
-      limit: validatedParams.maxReviews,
-      sort: validatedParams.sort,
-    }, clientIP);
+    const reviewsData: NormalizedReviewsData | null = await getReviewsData(
+      {
+        domain: validatedParams.domain,
+        page: validatedParams.page,
+        limit: validatedParams.maxReviews,
+        sort: validatedParams.sort,
+        rating: validatedParams.minRating,
+      },
+      clientIP
+    );
 
     // Handle no data case
     if (!reviewsData || reviewsData.reviews.length === 0) {
       return (
-        <ErrorDisplay 
+        <ErrorDisplay
           message={`No reviews found for ${validatedParams.domain}`}
           theme={validatedParams.theme}
         />
@@ -122,20 +140,26 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
     const themeConfig = CARROUSEL_CONFIG.themes[validatedParams.theme];
 
     return (
-      <main className="w-full h-full">
-        <div 
-          className="w-full"
-          style={{ height: `${validatedParams.height}px` }}
+      <main className='w-full h-full'>
+        <div
+          className='w-full'
+          style={{
+            height: validatedParams.autoHeight
+              ? 'auto'
+              : `${validatedParams.height}px`,
+          }}
         >
-          <ReviewsCarrousel
+          <ReviewsCarrouselClient
             reviews={reviewsData.reviews}
             company={reviewsData.company}
             config={{
               autoplay: validatedParams.autoplay,
               interval: validatedParams.interval,
               theme: themeConfig,
-              showRating: validatedParams.showRating,
-              showDate: validatedParams.showDate,
+              showRating: !validatedParams.hideRating,
+              showDate: !validatedParams.hideDate,
+              showAvatar: !validatedParams.hideAvatar,
+              showReply: !validatedParams.hideReply,
               maxReviews: validatedParams.maxReviews,
               height: validatedParams.height,
             }}
@@ -143,33 +167,34 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
         </div>
       </main>
     );
-
   } catch (error) {
     console.error('Page Error:', error);
-    
+
     // Get theme from params or default
     const resolvedSearchParamsForTheme = await searchParams;
-    const theme = (resolvedSearchParamsForTheme.theme === 'dark' ? 'dark' : 'light') as 'light' | 'dark';
-    
+    const theme = (
+      resolvedSearchParamsForTheme.theme === 'dark' ? 'dark' : 'light'
+    ) as 'light' | 'dark';
+
     if (error instanceof z.ZodError) {
-      const missingDomain = error.issues.find((issue: any) => issue.path.includes('domain'));
+      const missingDomain = error.issues.find(issue =>
+        issue.path.includes('domain')
+      );
       if (missingDomain) {
-        return notFound();
+        // If domain is missing, show demo page instead of 404
+        return <DemoPage />;
       }
-      
+
       return (
-        <ErrorDisplay 
-          message="Invalid configuration parameters" 
+        <ErrorDisplay
+          message='Invalid configuration parameters'
           theme={theme}
         />
       );
     }
 
     return (
-      <ErrorDisplay 
-        message="An unexpected error occurred" 
-        theme={theme}
-      />
+      <ErrorDisplay message='An unexpected error occurred' theme={theme} />
     );
   }
 }
@@ -180,10 +205,10 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
 
 export async function generateMetadata({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
-  const domain = Array.isArray(resolvedSearchParams.domain) 
-    ? resolvedSearchParams.domain[0] 
+  const domain = Array.isArray(resolvedSearchParams.domain)
+    ? resolvedSearchParams.domain[0]
     : resolvedSearchParams.domain;
-    
+
   if (!domain) {
     return {
       title: 'Trustpilot Reviews Carrousel',

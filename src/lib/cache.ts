@@ -25,7 +25,7 @@ class SimpleCache<T> {
   ) {
     this.maxItems = maxItems;
     this.maxMemoryMB = maxMemoryMB;
-    
+
     // Clean expired items every 2 minutes
     this.cleanupInterval = setInterval(() => {
       this.cleanup();
@@ -50,32 +50,34 @@ class SimpleCache<T> {
    */
   private evictLRU(): void {
     const entries = Array.from(this.cache.entries());
-    
+
     // Sort by lastAccessed (oldest first)
     entries.sort((a, b) => a[1].lastAccessed - b[1].lastAccessed);
-    
+
     // Remove 25% of oldest entries or until under memory limit
     const targetRemove = Math.max(1, Math.floor(entries.length * 0.25));
     let removedCount = 0;
-    
+
     for (const [key, item] of entries) {
       if (removedCount >= targetRemove && this.isUnderMemoryLimit()) {
         break;
       }
-      
+
       this.cache.delete(key);
       this.currentMemoryUsage -= item.size;
       removedCount++;
     }
-    
-    console.log(`Cache LRU eviction: Removed ${removedCount} items, ${this.cache.size} remaining`);
+
+    console.log(
+      `Cache LRU eviction: Removed ${removedCount} items, ${this.cache.size} remaining`
+    );
   }
 
   /**
    * Check if we're under memory limit
    */
   private isUnderMemoryLimit(): boolean {
-    return this.currentMemoryUsage < (this.maxMemoryMB * 1024 * 1024 * 0.8); // 80% of limit
+    return this.currentMemoryUsage < this.maxMemoryMB * 1024 * 1024 * 0.8; // 80% of limit
   }
 
   /**
@@ -84,12 +86,12 @@ class SimpleCache<T> {
   async set(key: string, data: T, ttl?: number): Promise<void> {
     const size = this.estimateSize(data);
     const now = Date.now();
-    
+
     // Check if we need to evict items first
     if (this.cache.size >= this.maxItems || !this.isUnderMemoryLimit()) {
       this.evictLRU();
     }
-    
+
     // Remove existing item if updating
     const existingItem = this.cache.get(key);
     if (existingItem) {
@@ -102,9 +104,9 @@ class SimpleCache<T> {
       ttl: Math.min(ttl || this.defaultTtl, 1800), // Max 30 minutes
       accessCount: 0,
       lastAccessed: now,
-      size
+      size,
     };
-    
+
     this.cache.set(key, item);
     this.currentMemoryUsage += size;
   }
@@ -114,11 +116,11 @@ class SimpleCache<T> {
    */
   async get<U = T>(key: string): Promise<U | null> {
     const item = this.cache.get(key);
-    
+
     if (!item) {
       return null;
     }
-    
+
     // Check if expired
     const now = Date.now();
     if (now - item.timestamp > item.ttl * 1000) {
@@ -126,11 +128,11 @@ class SimpleCache<T> {
       this.currentMemoryUsage -= item.size;
       return null;
     }
-    
+
     // Update access stats
     item.accessCount++;
     item.lastAccessed = now;
-    
+
     return item.data as unknown as U;
   }
 
@@ -188,7 +190,7 @@ class SimpleCache<T> {
       items: this.cache.size,
       memoryUsageMB: this.getMemoryUsageMB(),
       maxMemoryMB: this.maxMemoryMB,
-      hitRate: totalAccesses > 0 ? totalHits / totalAccesses : 0
+      hitRate: totalAccesses > 0 ? totalHits / totalAccesses : 0,
     };
   }
 
@@ -206,7 +208,7 @@ class SimpleCache<T> {
   private cleanup(): void {
     const now = Date.now();
     let removedCount = 0;
-    
+
     for (const [key, item] of this.cache.entries()) {
       if (now - item.timestamp > item.ttl * 1000) {
         this.cache.delete(key);
@@ -214,16 +216,16 @@ class SimpleCache<T> {
         removedCount++;
       }
     }
-    
+
     // If still over memory limit after cleanup, do LRU eviction
     if (!this.isUnderMemoryLimit()) {
       this.evictLRU();
     }
-    
+
     const stats = this.getStats();
     console.log(
       `[Cache] Cleanup complete: ${removedCount} expired items removed, ` +
-      `${stats.items} items remaining, ${stats.memoryUsageMB.toFixed(2)}MB used`
+        `${stats.items} items remaining, ${stats.memoryUsageMB.toFixed(2)}MB used`
     );
   }
 
@@ -244,7 +246,7 @@ class SimpleCache<T> {
 
 class RedisCache<T> {
   private client: any; // Redis client type
-  
+
   constructor(private defaultTtl: number = 300) {
     // Initialize Redis client if available
     // This would require redis package and connection
@@ -277,7 +279,7 @@ class RedisCache<T> {
 // ============================================
 
 function createCache<T>(
-  type: 'memory' | 'redis' = 'memory', 
+  type: 'memory' | 'redis' = 'memory',
   ttl: number = 1800, // 30 minutes
   maxItems: number = 1000,
   maxMemoryMB: number = 50
@@ -297,11 +299,19 @@ function createCache<T>(
 
 // Use environment variables to configure cache
 const cacheType = (process.env.CACHE_TYPE as 'memory' | 'redis') || 'memory';
-const cacheTtl = Math.min(parseInt(process.env.CACHE_TTL_SECONDS || '1800'), 1800); // Max 30 minutes
+const cacheTtl = Math.min(
+  parseInt(process.env.CACHE_TTL_SECONDS || '1800'),
+  1800
+); // Max 30 minutes
 const maxCacheItems = parseInt(process.env.CACHE_MAX_ITEMS || '1000');
 const maxCacheMemoryMB = parseInt(process.env.CACHE_MAX_MEMORY_MB || '50');
 
-export const cache = createCache<any>(cacheType, cacheTtl, maxCacheItems, maxCacheMemoryMB);
+export const cache = createCache<any>(
+  cacheType,
+  cacheTtl,
+  maxCacheItems,
+  maxCacheMemoryMB
+);
 
 // Export classes for custom usage
 export { SimpleCache, RedisCache, createCache };

@@ -1,5 +1,5 @@
 import { CarrouselConfig } from './types';
-import { lightTheme, darkTheme } from './utils';
+import { darkTheme, lightTheme } from './utils';
 
 // ============================================
 // DEFAULT CONFIGURATION
@@ -20,6 +20,11 @@ export const DEFAULT_CONFIG: Required<CarrouselConfig> = {
   showReply: true,
   height: 400,
   width: '100%',
+  hideRating: false,
+  hideDate: false,
+  hideAvatar: false,
+  hideReply: false,
+  autoHeight: false,
 };
 
 // ============================================
@@ -27,7 +32,8 @@ export const DEFAULT_CONFIG: Required<CarrouselConfig> = {
 // ============================================
 
 export const API_CONFIG = {
-  baseUrl: process.env.EXTERNAL_API_BASE_URL || 'https://api.trustpilot.com',
+  baseUrl:
+    process.env.EXTERNAL_API_BASE_URL || 'https://trustpilot.digitalshopuy.com',
   timeout: 10000, // 10 seconds
   retries: 3,
   cache: {
@@ -111,14 +117,15 @@ export const SWIPER_CONFIG = {
 export const VALIDATION = {
   domain: {
     minLength: 1,
-    pattern: /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i,
+    pattern:
+      /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/i,
   },
   rating: {
     min: 1,
     max: 5,
   },
   interval: {
-    min: 1000,  // 1 second
+    min: 1000, // 1 second
     max: 30000, // 30 seconds
   },
   maxReviews: {
@@ -153,7 +160,28 @@ export const ERROR_MESSAGES = {
 // ============================================
 
 export const SUPPORTED_LANGUAGES = [
-  'en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'da', 'sv', 'no', 'fi', 'pl', 'cs', 'sk', 'hu', 'ro', 'bg', 'hr', 'sl', 'et', 'lv', 'lt'
+  'en',
+  'es',
+  'fr',
+  'de',
+  'it',
+  'pt',
+  'nl',
+  'da',
+  'sv',
+  'no',
+  'fi',
+  'pl',
+  'cs',
+  'sk',
+  'hu',
+  'ro',
+  'bg',
+  'hr',
+  'sl',
+  'et',
+  'lv',
+  'lt',
 ] as const;
 
 // ============================================
@@ -187,7 +215,9 @@ export const PERFORMANCE_CONFIG = {
 export const DEV_CONFIG = {
   enableLogging: process.env.NODE_ENV === 'development',
   enableDevtools: process.env.NODE_ENV === 'development',
-  mockData: process.env.NODE_ENV === 'development' && process.env.USE_MOCK_DATA === 'true',
+  mockData:
+    process.env.NODE_ENV === 'development' &&
+    process.env.USE_MOCK_DATA === 'true',
 } as const;
 
 // ============================================
@@ -212,7 +242,9 @@ export const SOCIAL_CONFIG = {
 /**
  * Merges user config with default config
  */
-export function mergeConfig(userConfig: Partial<CarrouselConfig>): Required<CarrouselConfig> {
+export function mergeConfig(
+  userConfig: Partial<CarrouselConfig>
+): Required<CarrouselConfig> {
   return {
     ...DEFAULT_CONFIG,
     ...userConfig,
@@ -233,23 +265,52 @@ export function validateConfig(config: Partial<CarrouselConfig>): string[] {
     errors.push('Invalid domain format');
   }
 
-  if (config.minRating && (config.minRating < VALIDATION.rating.min || config.minRating > VALIDATION.rating.max)) {
-    errors.push(`Rating must be between ${VALIDATION.rating.min} and ${VALIDATION.rating.max}`);
+  if (
+    config.minRating &&
+    (config.minRating < VALIDATION.rating.min ||
+      config.minRating > VALIDATION.rating.max)
+  ) {
+    errors.push(
+      `Rating must be between ${VALIDATION.rating.min} and ${VALIDATION.rating.max}`
+    );
   }
 
-  if (config.interval && (config.interval < VALIDATION.interval.min || config.interval > VALIDATION.interval.max)) {
-    errors.push(`Interval must be between ${VALIDATION.interval.min} and ${VALIDATION.interval.max} milliseconds`);
+  if (
+    config.interval &&
+    (config.interval < VALIDATION.interval.min ||
+      config.interval > VALIDATION.interval.max)
+  ) {
+    errors.push(
+      `Interval must be between ${VALIDATION.interval.min} and ${VALIDATION.interval.max} milliseconds`
+    );
   }
 
-  if (config.maxReviews && (config.maxReviews < VALIDATION.maxReviews.min || config.maxReviews > VALIDATION.maxReviews.max)) {
-    errors.push(`Max reviews must be between ${VALIDATION.maxReviews.min} and ${VALIDATION.maxReviews.max}`);
+  if (
+    config.maxReviews &&
+    (config.maxReviews < VALIDATION.maxReviews.min ||
+      config.maxReviews > VALIDATION.maxReviews.max)
+  ) {
+    errors.push(
+      `Max reviews must be between ${VALIDATION.maxReviews.min} and ${VALIDATION.maxReviews.max}`
+    );
   }
 
-  if (config.height && (config.height < VALIDATION.height.min || config.height > VALIDATION.height.max)) {
-    errors.push(`Height must be between ${VALIDATION.height.min} and ${VALIDATION.height.max} pixels`);
+  if (
+    config.height &&
+    (config.height < VALIDATION.height.min ||
+      config.height > VALIDATION.height.max)
+  ) {
+    errors.push(
+      `Height must be between ${VALIDATION.height.min} and ${VALIDATION.height.max} pixels`
+    );
   }
 
-  if (config.language && !SUPPORTED_LANGUAGES.includes(config.language as any)) {
+  if (
+    config.language &&
+    !SUPPORTED_LANGUAGES.includes(
+      config.language as (typeof SUPPORTED_LANGUAGES)[number]
+    )
+  ) {
     errors.push(`Language '${config.language}' is not supported`);
   }
 

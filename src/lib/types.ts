@@ -20,25 +20,31 @@ export interface CarrouselConfig {
   showDate?: boolean;
   showAvatar?: boolean;
   showReply?: boolean;
+  hideRating?: boolean;
+  hideDate?: boolean;
+  hideAvatar?: boolean;
+  hideReply?: boolean;
   height?: number;
   width?: string | number;
+  autoHeight?: boolean;
 }
 
 export const CarrouselConfigSchema = z.object({
-  domain: z.string().min(1, 'Domain is required'),
+  domain: z.string().optional(),
   page: z.coerce.number().min(1).default(1),
   autoplay: z.coerce.boolean().default(true),
-  interval: z.coerce.number().min(1000).max(30000).default(5000),
+  interval: z.coerce.number().min(1000).max(10000).default(5000),
   theme: z.enum(['light', 'dark']).default('light'),
   maxReviews: z.coerce.number().min(1).max(50).default(10),
   minRating: z.coerce.number().min(1).max(5).default(1),
   language: z.string().default('en'),
-  showRating: z.coerce.boolean().default(true),
-  showDate: z.coerce.boolean().default(true),
-  showAvatar: z.coerce.boolean().default(true),
-  showReply: z.coerce.boolean().default(true),
+  hideRating: z.coerce.boolean().default(false),
+  hideDate: z.coerce.boolean().default(false),
+  hideAvatar: z.coerce.boolean().default(false),
+  hideReply: z.coerce.boolean().default(false),
   height: z.coerce.number().min(200).max(800).default(400),
-  width: z.union([z.string(), z.number()]).default('100%'),
+  sort: z.enum(['latest', 'rating']).default('latest'),
+  autoHeight: z.coerce.boolean().default(false),
 });
 
 // ============================================

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { cache } from './cache';
+import { ENV_CONFIG } from './env';
 import {
   BusinessUnit,
   Review,
@@ -180,24 +181,73 @@ function normalizeTrustpilotReview(review: Review): NormalizedReview {
 }
 
 function normalizeTrustpilotCompany(
-  businessUnit: BusinessUnit
+  businessUnit: BusinessUnit | undefined | null
 ): NormalizedCompanyInfo {
+  // Handle case where businessUnit is undefined or null
+  if (!businessUnit) {
+    console.warn(
+      '[TrustpilotServer] BusinessUnit is undefined/null in API response'
+    );
+    return {
+      name: 'Unknown Company',
+      domain: '',
+      average_rating: 0,
+      total_reviews: 0,
+      trustpilot_url: '',
+    };
+  }
+
+  // Log the businessUnit to understand what we're receiving
+  console.log('[TrustpilotServer] BusinessUnit received:', {
+    hasDisplayName: 'displayName' in businessUnit,
+    displayName: businessUnit.displayName,
+    hasIdentifyingName: 'identifyingName' in businessUnit,
+    identifyingName: businessUnit.identifyingName,
+    keys: Object.keys(businessUnit),
+  });
+
+  // Add additional safety checks for the properties
+  const displayName = businessUnit?.displayName || null;
+  const identifyingName = businessUnit?.identifyingName || null;
+  const websiteUrl = businessUnit?.websiteUrl || '';
+  const trustScore = businessUnit?.trustScore || 0;
+  const numberOfReviews = businessUnit?.numberOfReviews || 0;
+
   return {
-    name:
-      businessUnit.displayName ||
-      businessUnit.identifyingName ||
-      'Unknown Company',
-    domain: businessUnit.websiteUrl || '',
-    average_rating: businessUnit.trustScore || 0,
-    total_reviews: businessUnit.numberOfReviews || 0,
-    trustpilot_url:
-      `https://www.trustpilot.com/review/${businessUnit.identifyingName}` || '',
+    name: displayName || identifyingName || 'Unknown Company',
+    domain: websiteUrl,
+    average_rating: trustScore,
+    total_reviews: numberOfReviews,
+    trustpilot_url: identifyingName
+      ? `https://www.trustpilot.com/review/${identifyingName}`
+      : '',
   };
 }
 
 function normalizeTrustpilotResponse(
-  data: TrustpilotResponse
+  data: TrustpilotResponse | null | undefined
 ): NormalizedReviewsData {
+  // Handle case where data is null or undefined
+  if (!data) {
+    console.warn('[TrustpilotServer] API response data is null or undefined');
+    return {
+      reviews: [],
+      pagination: {
+        current_page: 1,
+        total_pages: 0,
+        total_reviews: 0,
+        per_page: 20,
+      },
+      company: {
+        name: 'Unknown Company',
+        domain: '',
+        average_rating: 0,
+        total_reviews: 0,
+        trustpilot_url: '',
+      },
+    };
+  }
+
   // Extract pagination from filters
   const pagination = data.filters?.pagination || {
     currentPage: 1,
@@ -223,14 +273,25 @@ function normalizeTrustpilotResponse(
 // ============================================
 
 class TrustpilotServerClient {
-  private static readonly API_URL = process.env.EXTERNAL_API_BASE_URL || 'https://api.trustpilot.com';
-  private static readonly RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-  private static readonly MAX_REQUESTS_PER_WINDOW = 30;
+  private static readonly API_URL = ENV_CONFIG.API_BASE_URL;
+  private static readonly RATE_LIMIT_WINDOW = ENV_CONFIG.RATE_LIMIT_WINDOW_MS;
+  private static readonly MAX_REQUESTS_PER_WINDOW =
+    ENV_CONFIG.RATE_LIMIT_MAX_REQUESTS;
 
   private requestCounts = new Map<
     string,
     { count: number; resetTime: number }
   >();
+
+  constructor() {
+    // Debug: Log the API URL being used
+    console.log(
+      `[TrustpilotServerClient] Using API URL: ${TrustpilotServerClient.API_URL}`
+    );
+    console.log(
+      `[TrustpilotServerClient] Rate limit: ${TrustpilotServerClient.MAX_REQUESTS_PER_WINDOW} requests per ${TrustpilotServerClient.RATE_LIMIT_WINDOW}ms`
+    );
+  }
 
   /**
    * Validates a domain string
@@ -294,6 +355,7 @@ class TrustpilotServerClient {
   ): Promise<TrustpilotResponse | null> {
     try {
       const url = new URL(TrustpilotServerClient.API_URL);
+      url.pathname = '/trustpilot/feedbacks/filtered';
       url.searchParams.set('domain', params.domain);
 
       if (params.page && params.page > 1) {
@@ -305,7 +367,15 @@ class TrustpilotServerClient {
       }
 
       if (params.rating) {
-        url.searchParams.set('rating', params.rating.toString());
+        // The rating has to be sent as stars separated by a comma 3,4
+        // Rating is the maximum number of stars and stars go from 1-5
+        // For rating 4, you have to send 4,5 in stars
+        const rating = params.rating;
+        const stars = [];
+        for (let i = rating; i <= 5; i++) {
+          stars.push(i.toString());
+        }
+        url.searchParams.set('stars', stars.join(','));
       }
 
       if (params.sort) {
@@ -339,11 +409,45 @@ class TrustpilotServerClient {
       console.log(
         `[TrustpilotServer] Successfully fetched data for domain: ${params.domain}`
       );
+
+      // Check if the response structure is as expected
+      if (!data.data || !data.data.pageProps) {
+        console.error(
+          '[TrustpilotServer] Unexpected API response structure:',
+          JSON.stringify(data, null, 2)
+        );
+        return null;
+      }
+
       console.log(
-        `[TrustpilotServer] Reviews found: ${data.reviews?.length || 0}`
+        `[TrustpilotServer] Reviews found: ${data.data.pageProps.reviews?.length || 0}`
       );
 
-      return data;
+      const finalData = { domain: data.domain, ...data.data.pageProps };
+
+      // Debug: Log the structure of finalData to understand what we're getting
+      console.log('[TrustpilotServer] Final data structure:');
+      console.log(`- domain: ${finalData.domain}`);
+      console.log(
+        `- businessUnit: ${finalData.businessUnit ? 'EXISTS' : 'MISSING'}`
+      );
+      console.log(`- reviews: ${finalData.reviews?.length || 0} items`);
+      console.log(`- filters: ${finalData.filters ? 'EXISTS' : 'MISSING'}`);
+
+      if (finalData.businessUnit) {
+        console.log(
+          `- businessUnit.displayName: ${finalData.businessUnit.displayName || 'MISSING'}`
+        );
+        console.log(
+          `- businessUnit.identifyingName: ${finalData.businessUnit.identifyingName || 'MISSING'}`
+        );
+      } else {
+        console.warn(
+          '[TrustpilotServer] businessUnit is missing from API response'
+        );
+      }
+
+      return finalData;
     } catch (error) {
       console.error('[TrustpilotServer] Network error:', error);
       return null;
@@ -387,7 +491,7 @@ class TrustpilotServerClient {
       const cachedData = await cache.get<NormalizedReviewsData>(cacheKey);
       if (cachedData) {
         console.log(`[TrustpilotServer] Cache hit for: ${cacheKey}`);
-        return cachedData;
+        //return cachedData;
       }
 
       // Fetch from API
@@ -399,11 +503,11 @@ class TrustpilotServerClient {
       // Normalize the response
       const normalizedData = normalizeTrustpilotResponse(apiResponse);
 
-      // Cache the normalized data for 30 minutes (1800 seconds)
-      cache.set(cacheKey, normalizedData, 1800);
+      // Cache the normalized data using configured TTL
+      cache.set(cacheKey, normalizedData, ENV_CONFIG.CACHE_TTL_SECONDS);
 
       console.log(
-        `[TrustpilotServer] Data cached with key: ${cacheKey} (TTL: 30 minutes)`
+        `[TrustpilotServer] Data cached with key: ${cacheKey} (TTL: ${ENV_CONFIG.CACHE_TTL_SECONDS} seconds)`
       );
 
       // Log cache stats periodically

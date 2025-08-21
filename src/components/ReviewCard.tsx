@@ -12,6 +12,8 @@ interface ReviewCardProps {
   theme: ThemeConfig;
   showRating?: boolean;
   showDate?: boolean;
+  showAvatar?: boolean;
+  showReply?: boolean;
   className?: string;
   compact?: boolean;
 }
@@ -25,6 +27,8 @@ export function ReviewCard({
   theme,
   showRating = true,
   showDate = true,
+  showAvatar = true,
+  showReply = true,
   className,
   compact = false,
 }: ReviewCardProps) {
@@ -63,7 +67,7 @@ export function ReviewCard({
       className={cn(
         'p-4 rounded-lg border shadow-sm transition-shadow hover:shadow-md',
         'flex flex-col gap-3',
-        compact ? 'min-h-[150px]' : 'min-h-[180px] max-h-[400px]',
+        compact ? 'h-[150px]' : 'h-full',
         'overflow-hidden',
         className
       )}
@@ -123,26 +127,29 @@ export function ReviewCard({
         style={{ borderColor: theme.colors.border }}
       >
         {/* Avatar */}
-        <div className='flex-shrink-0'>
-          {review.author.avatar ? (
-            <img
-              src={review.author.avatar}
-              alt={`${review.author.name}'s avatar`}
-              className='w-8 h-8 rounded-full object-cover'
-              loading='lazy'
-            />
-          ) : (
-            <div
-              className='w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium'
-              style={{
-                backgroundColor: theme.colors.primary + '20',
-                color: theme.colors.primary,
-              }}
-            >
-              {review.author.name.charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
+        {showAvatar && (
+          <div className='flex-shrink-0'>
+            {review.author.avatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={review.author.avatar}
+                alt={`${review.author.name}'s avatar`}
+                className='w-8 h-8 rounded-full object-cover'
+                loading='lazy'
+              />
+            ) : (
+              <div
+                className='w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium'
+                style={{
+                  backgroundColor: theme.colors.primary + '20',
+                  color: theme.colors.primary,
+                }}
+              >
+                {review.author.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Author Details */}
         <div className='flex-grow min-w-0'>
@@ -173,7 +180,7 @@ export function ReviewCard({
       </footer>
 
       {/* Company Reply */}
-      {review.reply && (
+      {showReply && review.reply && (
         <div
           className='mt-3 p-3 rounded-md border-l-4 overflow-hidden'
           style={{
@@ -229,9 +236,7 @@ export function ReviewCard({
 // COMPACT REVIEW CARD
 // ============================================
 
-interface CompactReviewCardProps extends Omit<ReviewCardProps, 'compact'> {}
-
-export function CompactReviewCard(props: CompactReviewCardProps) {
+export function CompactReviewCard(props: ReviewCardProps) {
   return <ReviewCard {...props} compact={true} />;
 }
 

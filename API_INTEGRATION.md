@@ -2,7 +2,7 @@
 
 ## 🔌 Endpoint de Ejemplo
 
-**URL Base:** `https://api.trustpilot.com/`
+**URL Base:** `https://trustpilot.digitalshopuy.com/`
 
 ### Parámetros Soportados
 ```
@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Construir URL del endpoint externo
-    const externalUrl = new URL('https://api.trustpilot.com/');
+    const externalUrl = new URL('https://trustpilot.digitalshopuy.com/');
     externalUrl.searchParams.set('domain', domain);
     externalUrl.searchParams.set('page', page.toString());
     if (limit !== 10) externalUrl.searchParams.set('limit', limit.toString());
@@ -389,7 +389,7 @@ export const trustpilotClient = new TrustpilotClient();
 ```env
 # .env.local
 TRUSTPILOT_API_KEY=your_api_key_if_needed
-EXTERNAL_API_BASE_URL=https://api.trustpilot.com
+EXTERNAL_API_BASE_URL=https://trustpilot.digitalshopuy.com
 CACHE_TTL_SECONDS=300
 RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX_REQUESTS=100
