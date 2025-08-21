@@ -208,13 +208,16 @@ export function ClientCarrousel({
       {/* Reviews Carousel */}
       <div
         className='relative'
-        style={{ height: `${height - 80}px` }} // Subtract header height
+        style={{ 
+          height: `${height - 80}px`,
+          minHeight: '300px' // Ensure minimum height for consistency
+        }}
       >
         <Swiper
           modules={swiperModules}
           spaceBetween={16}
           slidesPerView={1}
-          autoHeight={true}
+          autoHeight={false}
           navigation={{
             enabled: true,
           }}
@@ -242,7 +245,7 @@ export function ClientCarrousel({
             nextSlideMessage: 'Next review',
             paginationBulletMessage: 'Go to review {{index}}',
           }}
-          className='h-full'
+          className='h-full swiper-equal-height'
           style={{
             ...navigationStyles,
             ...paginationStyles,
@@ -251,7 +254,7 @@ export function ClientCarrousel({
             640: {
               slidesPerView: 1,
               spaceBetween: 20,
-              autoHeight: true,
+              autoHeight: false,
             },
             768: {
               slidesPerView: Math.min(2, displayReviews.length),
@@ -267,7 +270,7 @@ export function ClientCarrousel({
         >
           {displayReviews.map(review => (
             <SwiperSlide key={review.id} className='h-full'>
-              <div className='p-4 h-full'>
+              <div className='p-4 h-full flex'>
                 <ReviewCard
                   review={review}
                   theme={theme}
@@ -275,7 +278,7 @@ export function ClientCarrousel({
                   showDate={showDate}
                   showAvatar={showAvatar}
                   showReply={showReply}
-                  className='h-full'
+                  className='flex-1 flex flex-col'
                 />
               </div>
             </SwiperSlide>

@@ -150,7 +150,7 @@ export function DemoPage() {
               </div>
               <div className='p-4 sm:p-6'>
                 <IframeResizerDemo
-                  src={`${origin}/?domain=${config.domain}&theme=light&maxReviews=3&height=300`}
+                  src={`${origin}/?domain=${config.domain}&theme=light&maxReviews=3&autoHeight=true`}
                   width='100%'
                   height='300'
                   className='rounded-lg border'
@@ -169,7 +169,7 @@ export function DemoPage() {
               </div>
               <div className='p-4 sm:p-6'>
                 <IframeResizerDemo
-                  src={`${origin}/?domain=${config.domain}&theme=dark&maxReviews=3&height=300`}
+                  src={`${origin}/?domain=${config.domain}&theme=dark&maxReviews=3&autoHeight=true`}
                   width='100%'
                   height='300'
                   className='rounded-lg border'
