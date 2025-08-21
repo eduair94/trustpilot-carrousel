@@ -16,6 +16,7 @@ interface ReviewCardProps {
   showReply?: boolean;
   className?: string;
   compact?: boolean;
+  availableHeight?: number; // Available height in pixels for smart content hiding
 }
 
 // ============================================
@@ -31,11 +32,28 @@ export function ReviewCard({
   showReply = true,
   className,
   compact = false,
+  availableHeight,
 }: ReviewCardProps) {
+  // Progressive content hiding based on available height
+  const isVerySmall = availableHeight && availableHeight < 120; // Less than 120px = very aggressive hiding
+  const isSmall = availableHeight && availableHeight < 150; // Less than 150px = some hiding
+  const isCompact = compact || isSmall;
+  
+  // Determine what to hide based on available space
+  const shouldHideTitle = isVerySmall;
+  const shouldHideContent = isVerySmall; // Only hide content for very small heights
+  const shouldHideReply = isSmall; // Hide replies for small heights
+  const shouldReducePadding = isSmall; // Reduce padding for small heights
+  
   const cardStyles = {
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
     color: theme.colors.text,
+    // Constrain max height based on available space to prevent cutoff
+    ...(availableHeight && {
+      maxHeight: `${availableHeight - 20}px`, // Leave 20px margin for padding
+      minHeight: 'auto'
+    })
   };
 
   const formatDate = (dateString: string): string => {
@@ -65,10 +83,14 @@ export function ReviewCard({
   return (
     <article
       className={cn(
-        'p-4 rounded-lg border shadow-sm transition-shadow hover:shadow-md',
-        'flex flex-col gap-3',
-        compact ? 'h-[150px]' : 'h-full',
+        'rounded-lg border shadow-sm transition-shadow hover:shadow-md',
+        'flex flex-col',
+        shouldReducePadding ? 'p-2 gap-1' : 'p-4 gap-3', // Reduce padding and gap for small heights
+        // Only set fixed height for normal compact mode, not when we have height constraints
+        compact && !availableHeight ? 'h-[150px]' : 'h-full',
         'overflow-hidden',
+        // Add explicit height constraint for very small containers
+        availableHeight && availableHeight < 200 ? 'max-h-full' : '',
         className
       )}
       style={cardStyles}
@@ -95,35 +117,55 @@ export function ReviewCard({
         )}
       </header>
 
-      {/* Review Title */}
-      {review.title && (
+      {/* Review Title - Hide for very small heights */}
+      {review.title && !shouldHideTitle && (
         <h3 className='font-semibold text-sm leading-tight break-words'>
-          <span className={compact ? 'line-clamp-1' : 'line-clamp-2'}>
+          <span className={isCompact ? 'line-clamp-1' : 'line-clamp-2'}>
             {review.title}
           </span>
         </h3>
       )}
 
-      {/* Review Content */}
-      <div className='flex-grow overflow-hidden'>
-        <p
-          className={cn(
-            'text-sm leading-relaxed break-words overflow-hidden',
-            compact ? 'line-clamp-3' : 'line-clamp-5'
-          )}
-          style={{
-            color: theme.colors.textSecondary,
-            wordBreak: 'break-word',
-            overflowWrap: 'break-word',
-          }}
-        >
-          {compact ? truncateText(review.content, 200) : review.content}
-        </p>
-      </div>
+      {/* Review Content - Only show if we have enough space */}
+      {!shouldHideContent && review.content ? (
+        <div className='flex-grow overflow-hidden min-h-0'>
+          <p
+            className={cn(
+              'text-sm leading-relaxed break-words overflow-hidden',
+              isCompact ? 'line-clamp-2' : 'line-clamp-3',
+              // Make content scrollable for very small heights
+              isVerySmall && 'overflow-y-auto max-h-12'
+            )}
+            style={{
+              color: theme.colors.textSecondary,
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+            }}
+          >
+            {isCompact ? truncateText(review.content, 120) : truncateText(review.content, 200)}
+          </p>
+        </div>
+      ) : shouldHideContent ? (
+        // Minimal spacer to maintain layout when content is hidden
+        <div className='flex-grow min-h-0' />
+      ) : (
+        // Fallback if no content available
+        <div className='flex-grow overflow-hidden min-h-0'>
+          <p
+            className='text-sm opacity-50 italic'
+            style={{ color: theme.colors.textSecondary }}
+          >
+            No review content available
+          </p>
+        </div>
+      )}
 
       {/* Author Info */}
       <footer
-        className='flex items-center gap-3 pt-2 border-t'
+        className={cn(
+          'flex items-center gap-3 border-t',
+          shouldReducePadding ? 'pt-1' : 'pt-2'
+        )}
         style={{ borderColor: theme.colors.border }}
       >
         {/* Avatar */}
@@ -134,12 +176,18 @@ export function ReviewCard({
               <img
                 src={review.author.avatar}
                 alt={`${review.author.name}'s avatar`}
-                className='w-8 h-8 rounded-full object-cover'
+                className={cn(
+                  'rounded-full object-cover',
+                  isVerySmall ? 'w-6 h-6' : 'w-8 h-8'
+                )}
                 loading='lazy'
               />
             ) : (
               <div
-                className='w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium'
+                className={cn(
+                  'rounded-full flex items-center justify-center font-medium',
+                  isVerySmall ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-xs'
+                )}
                 style={{
                   backgroundColor: theme.colors.primary + '20',
                   color: theme.colors.primary,
@@ -153,8 +201,13 @@ export function ReviewCard({
 
         {/* Author Details */}
         <div className='flex-grow min-w-0'>
-          <p className='font-medium text-sm truncate'>{review.author.name}</p>
-          {review.author.location && (
+          <p className={cn(
+            'font-medium truncate',
+            isVerySmall ? 'text-xs' : 'text-sm'
+          )}>
+            {review.author.name}
+          </p>
+          {review.author.location && !isVerySmall && (
             <p
               className='text-xs opacity-60 truncate'
               style={{ color: theme.colors.textSecondary }}
@@ -165,7 +218,7 @@ export function ReviewCard({
         </div>
 
         {/* Verified Badge */}
-        {review.verified && (
+        {review.verified && !isVerySmall && (
           <div
             className='flex-shrink-0 px-2 py-1 rounded text-xs font-medium'
             style={{
@@ -179,8 +232,8 @@ export function ReviewCard({
         )}
       </footer>
 
-      {/* Company Reply */}
-      {showReply && review.reply && (
+      {/* Company Reply - Only show if we have content space and reply exists */}
+      {showReply && review.reply && !shouldHideReply && (
         <div
           className='mt-3 p-3 rounded-md border-l-4 overflow-hidden'
           style={{
@@ -221,8 +274,8 @@ export function ReviewCard({
         </div>
       )}
 
-      {/* Helpful Counter */}
-      {(review.helpful ?? 0) > 0 && (
+      {/* Helpful Counter - Hide for very small heights */}
+      {(review.helpful ?? 0) > 0 && !isVerySmall && (
         <div className='flex items-center gap-1 text-xs opacity-60'>
           <span>👍</span>
           <span>{review.helpful} found this helpful</span>

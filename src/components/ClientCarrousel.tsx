@@ -179,29 +179,42 @@ export function ClientCarrousel({
     >
       {/* Company Header */}
       <div
-        className='px-6 py-4 border-b'
+        className={cn(
+          'border-b',
+          height <= 220 ? 'px-3 py-2' : 'px-6 py-4' // Compact header for small heights
+        )}
         style={{ borderColor: theme.colors.border }}
       >
         <div className='flex items-center justify-between'>
           <div>
-            <h2 className='text-lg font-semibold'>{company.name}</h2>
-            <div className='flex items-center gap-2 text-sm opacity-75'>
+            <h2 className={cn(
+              'font-semibold',
+              height <= 220 ? 'text-base' : 'text-lg'
+            )}>
+              {company.name}
+            </h2>
+            <div className={cn(
+              'flex items-center gap-2 opacity-75',
+              height <= 220 ? 'text-xs' : 'text-sm'
+            )}>
               <span>⭐ {company.average_rating.toFixed(1)}</span>
               <span>•</span>
               <span>{company.total_reviews} reviews</span>
             </div>
           </div>
-          <div className='text-xs opacity-50'>
-            <a
-              href={company.trustpilot_url}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='hover:underline'
-              style={{ color: theme.colors.primary }}
-            >
-              View on Trustpilot
-            </a>
-          </div>
+          {height > 180 && ( // Hide "View on Trustpilot" for very small heights
+            <div className='text-xs opacity-50'>
+              <a
+                href={company.trustpilot_url}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:underline'
+                style={{ color: theme.colors.primary }}
+              >
+                View on Trustpilot
+              </a>
+            </div>
+          )}
         </div>
       </div>
 
@@ -209,8 +222,8 @@ export function ClientCarrousel({
       <div
         className='relative'
         style={{ 
-          height: `${height - 80}px`,
-          minHeight: '300px' // Ensure minimum height for consistency
+          height: `${Math.max(height - (height <= 220 ? 60 : 80), 120)}px`, // Dynamic header height
+          minHeight: '120px' // Minimum height for very small widgets
         }}
       >
         <Swiper
@@ -270,7 +283,10 @@ export function ClientCarrousel({
         >
           {displayReviews.map(review => (
             <SwiperSlide key={review.id} className='h-full'>
-              <div className='p-4 h-full flex'>
+              <div className={cn(
+                'h-full flex',
+                height <= 250 ? 'p-2' : 'p-4' // Reduce padding for small heights
+              )}>
                 <ReviewCard
                   review={review}
                   theme={theme}
@@ -279,6 +295,11 @@ export function ClientCarrousel({
                   showAvatar={showAvatar}
                   showReply={showReply}
                   className='flex-1 flex flex-col'
+                  compact={height <= 250} // Enable compact mode for small heights
+                  availableHeight={Math.max(
+                    height - (height <= 220 ? 60 : 80) - (height <= 250 ? 16 : 32), // Account for dynamic padding
+                    100
+                  )}
                 />
               </div>
             </SwiperSlide>
