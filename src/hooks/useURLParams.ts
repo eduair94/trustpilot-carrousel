@@ -255,6 +255,12 @@ export function createConfigFromParams(params: URLSearchParams): Partial<Carrous
   const showReply = params.get('showReply');
   if (showReply !== null) config.showReply = parseBoolean(showReply, true);
 
+  const hideGlobalReviews = params.get('hideGlobalReviews');
+  if (hideGlobalReviews !== null) config.hideGlobalReviews = parseBoolean(hideGlobalReviews, false);
+
+  const hideTopBanner = params.get('hideTopBanner');
+  if (hideTopBanner !== null) config.hideTopBanner = parseBoolean(hideTopBanner, false);
+
   const height = params.get('height');
   if (height) config.height = parseNumber(height, 400, 200, 800);
 

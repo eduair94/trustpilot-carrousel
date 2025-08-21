@@ -30,6 +30,8 @@ interface CarrouselConfig {
   showReply: boolean;
   maxReviews: number;
   height: number;
+  hideGlobalReviews: boolean;
+  hideTopBanner: boolean;
 }
 
 interface ClientCarrouselProps {
@@ -65,6 +67,8 @@ export function ClientCarrousel({
     showReply,
     maxReviews,
     height,
+    hideGlobalReviews,
+    hideTopBanner,
   } = config;
 
   // Limit reviews to max count
@@ -129,37 +133,43 @@ export function ClientCarrousel({
         style={containerStyles}
       >
         {/* Company Header */}
-        <div
-          className='px-6 py-4 border-b'
-          style={{ borderColor: theme.colors.border }}
-        >
-          <div className='flex items-center justify-between'>
-            <div>
-              <h2 className='text-lg font-semibold'>{company.name}</h2>
-              <div className='flex items-center gap-2 text-sm opacity-75'>
-                <span>⭐ {company.average_rating.toFixed(1)}</span>
-                <span>•</span>
-                <span>{company.total_reviews} reviews</span>
+        {!hideTopBanner && (
+          <div
+            className='px-6 py-4 border-b'
+            style={{ borderColor: theme.colors.border }}
+          >
+            <div className='flex items-center justify-between'>
+              <div>
+                <h2 className='text-lg font-semibold'>{company.name}</h2>
+                {!hideGlobalReviews && (
+                  <div className='flex items-center gap-2 text-sm opacity-75'>
+                    <span>⭐ {company.average_rating.toFixed(1)}</span>
+                    <span>•</span>
+                    <span>{company.total_reviews} reviews</span>
+                  </div>
+                )}
+              </div>
+              <div className='text-xs opacity-50'>
+                <a
+                  href={company.trustpilot_url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='hover:underline'
+                  style={{ color: theme.colors.primary }}
+                >
+                  View on Trustpilot
+                </a>
               </div>
             </div>
-            <div className='text-xs opacity-50'>
-              <a
-                href={company.trustpilot_url}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:underline'
-                style={{ color: theme.colors.primary }}
-              >
-                View on Trustpilot
-              </a>
-            </div>
           </div>
-        </div>
+        )}
 
         {/* Loading skeleton */}
         <div
           className='p-4 flex items-center justify-center'
-          style={{ height: `${height - 80}px` }}
+          style={{
+            height: hideTopBanner ? `${height}px` : `${height - 80}px`
+          }}
         >
           <div className='animate-pulse text-center'>
             <div className='text-sm opacity-60'>Loading carrousel...</div>
@@ -178,52 +188,62 @@ export function ClientCarrousel({
       style={containerStyles}
     >
       {/* Company Header */}
-      <div
-        className={cn(
-          'border-b',
-          height <= 220 ? 'px-3 py-2' : 'px-6 py-4' // Compact header for small heights
-        )}
-        style={{ borderColor: theme.colors.border }}
-      >
-        <div className='flex items-center justify-between'>
-          <div>
-            <h2 className={cn(
-              'font-semibold',
-              height <= 220 ? 'text-base' : 'text-lg'
-            )}>
-              {company.name}
-            </h2>
-            <div className={cn(
-              'flex items-center gap-2 opacity-75',
-              height <= 220 ? 'text-xs' : 'text-sm'
-            )}>
-              <span>⭐ {company.average_rating.toFixed(1)}</span>
-              <span>•</span>
-              <span>{company.total_reviews} reviews</span>
-            </div>
-          </div>
-          {height > 180 && ( // Hide "View on Trustpilot" for very small heights
-            <div className='text-xs opacity-50'>
-              <a
-                href={company.trustpilot_url}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:underline'
-                style={{ color: theme.colors.primary }}
-              >
-                View on Trustpilot
-              </a>
-            </div>
+      {!hideTopBanner && (
+        <div
+          className={cn(
+            'border-b',
+            height <= 220 ? 'px-3 py-2' : 'px-6 py-4' // Compact header for small heights
           )}
+          style={{ borderColor: theme.colors.border }}
+        >
+          <div className='flex items-center justify-between'>
+            <div>
+              <h2
+                className={cn(
+                  'font-semibold',
+                  height <= 220 ? 'text-base' : 'text-lg'
+                )}
+              >
+                {company.name}
+              </h2>
+              {!hideGlobalReviews && (
+                <div
+                  className={cn(
+                    'flex items-center gap-2 opacity-75',
+                    height <= 220 ? 'text-xs' : 'text-sm'
+                  )}
+                >
+                  <span>⭐ {company.average_rating.toFixed(1)}</span>
+                  <span>•</span>
+                  <span>{company.total_reviews} reviews</span>
+                </div>
+              )}
+            </div>
+            {height > 180 && ( // Hide "View on Trustpilot" for very small heights
+              <div className='text-xs opacity-50'>
+                <a
+                  href={company.trustpilot_url}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='hover:underline'
+                  style={{ color: theme.colors.primary }}
+                >
+                  View on Trustpilot
+                </a>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Reviews Carousel */}
       <div
         className='relative'
-        style={{ 
-          height: `${Math.max(height - (height <= 220 ? 60 : 80), 120)}px`, // Dynamic header height
-          minHeight: '120px' // Minimum height for very small widgets
+        style={{
+          height: hideTopBanner
+            ? `${height}px`
+            : `${Math.max(height - (height <= 220 ? 60 : 80), 120)}px`, // Dynamic header height
+          minHeight: '120px', // Minimum height for very small widgets
         }}
       >
         <Swiper
@@ -283,10 +303,12 @@ export function ClientCarrousel({
         >
           {displayReviews.map(review => (
             <SwiperSlide key={review.id} className='h-full'>
-              <div className={cn(
-                'h-full flex',
-                height <= 250 ? 'p-2' : 'p-4' // Reduce padding for small heights
-              )}>
+              <div
+                className={cn(
+                  'h-full flex',
+                  height <= 250 ? 'p-2' : 'p-4' // Reduce padding for small heights
+                )}
+              >
                 <ReviewCard
                   review={review}
                   theme={theme}
@@ -297,7 +319,9 @@ export function ClientCarrousel({
                   className='flex-1 flex flex-col'
                   compact={height <= 250} // Enable compact mode for small heights
                   availableHeight={Math.max(
-                    height - (height <= 220 ? 60 : 80) - (height <= 250 ? 16 : 32), // Account for dynamic padding
+                    height -
+                      (hideTopBanner ? 0 : height <= 220 ? 60 : 80) -
+                      (height <= 250 ? 16 : 32), // Account for dynamic padding
                     100
                   )}
                 />
@@ -312,7 +336,15 @@ export function ClientCarrousel({
         className='absolute bottom-0 right-0 px-2 py-1 text-xs opacity-40'
         style={{ color: theme.colors.textSecondary }}
       >
-        Powered by Trustpilot
+        <a
+          href={company.trustpilot_url}
+          target='_blank'
+          rel='noopener noreferrer'
+          className='hover:underline hover:opacity-60 transition-opacity'
+          style={{ color: 'inherit' }}
+        >
+          Powered by Trustpilot
+        </a>
       </div>
     </div>
   );

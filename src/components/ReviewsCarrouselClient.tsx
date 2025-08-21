@@ -18,6 +18,8 @@ interface CarrouselConfig {
   showReply: boolean;
   maxReviews: number;
   height: number;
+  hideGlobalReviews: boolean;
+  hideTopBanner: boolean;
 }
 
 interface ReviewsCarrouselClientProps {

@@ -24,6 +24,8 @@ export const DEFAULT_CONFIG: Required<CarrouselConfig> = {
   hideDate: false,
   hideAvatar: false,
   hideReply: false,
+  hideGlobalReviews: false,
+  hideTopBanner: false,
   autoHeight: false,
 };
 

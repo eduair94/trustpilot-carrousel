@@ -26,6 +26,8 @@ const SearchParamsSchema = z.object({
   hideDate: z.coerce.boolean().default(false),
   hideAvatar: z.coerce.boolean().default(false),
   hideReply: z.coerce.boolean().default(false),
+  hideGlobalReviews: z.coerce.boolean().default(false),
+  hideTopBanner: z.coerce.boolean().default(false),
   height: z.coerce.number().min(200).max(800).default(400),
   sort: z.enum(['latest', 'rating']).default('latest'),
   autoHeight: z.coerce.boolean().default(false),
@@ -162,6 +164,8 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
               showReply: !validatedParams.hideReply,
               maxReviews: validatedParams.maxReviews,
               height: validatedParams.height,
+              hideGlobalReviews: validatedParams.hideGlobalReviews,
+              hideTopBanner: validatedParams.hideTopBanner,
             }}
           />
         </div>

@@ -24,6 +24,8 @@ export interface CarrouselConfig {
   hideDate?: boolean;
   hideAvatar?: boolean;
   hideReply?: boolean;
+  hideGlobalReviews?: boolean;
+  hideTopBanner?: boolean;
   height?: number;
   width?: string | number;
   autoHeight?: boolean;
@@ -42,6 +44,8 @@ export const CarrouselConfigSchema = z.object({
   hideDate: z.coerce.boolean().default(false),
   hideAvatar: z.coerce.boolean().default(false),
   hideReply: z.coerce.boolean().default(false),
+  hideGlobalReviews: z.coerce.boolean().default(false),
+  hideTopBanner: z.coerce.boolean().default(false),
   height: z.coerce.number().min(200).max(800).default(400),
   sort: z.enum(['latest', 'rating']).default('latest'),
   autoHeight: z.coerce.boolean().default(false),

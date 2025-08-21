@@ -25,6 +25,8 @@ export function IframeConfigurator({
     hideDate: false,
     hideAvatar: false,
     hideReply: false,
+    hideGlobalReviews: false,
+    hideTopBanner: false,
     height: 400,
     width: '100%',
     autoHeight: true,
@@ -78,6 +80,10 @@ export function IframeConfigurator({
       params.append('hideAvatar', config.hideAvatar.toString());
     if (config.hideReply !== undefined && config.hideReply !== false)
       params.append('hideReply', config.hideReply.toString());
+    if (config.hideGlobalReviews !== undefined && config.hideGlobalReviews !== false)
+      params.append('hideGlobalReviews', config.hideGlobalReviews.toString());
+    if (config.hideTopBanner !== undefined && config.hideTopBanner !== false)
+      params.append('hideTopBanner', config.hideTopBanner.toString());
     if (config.height && config.height !== 400)
       params.append('height', config.height.toString());
     if (config.autoHeight !== undefined && config.autoHeight !== false)
@@ -329,6 +335,8 @@ export function IframeConfigurator({
                   { key: 'hideDate', label: 'Hide Date' },
                   { key: 'hideAvatar', label: 'Hide Avatar' },
                   { key: 'hideReply', label: 'Hide Replies' },
+                  { key: 'hideGlobalReviews', label: 'Hide Global Reviews' },
+                  { key: 'hideTopBanner', label: 'Hide Top Banner' },
                 ].map(({ key, label }) => (
                   <label key={key} className='flex items-center space-x-2'>
                     <input

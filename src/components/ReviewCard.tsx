@@ -38,13 +38,13 @@ export function ReviewCard({
   const isVerySmall = availableHeight && availableHeight < 120; // Less than 120px = very aggressive hiding
   const isSmall = availableHeight && availableHeight < 150; // Less than 150px = some hiding
   const isCompact = compact || isSmall;
-  
+
   // Determine what to hide based on available space
   const shouldHideTitle = isVerySmall;
   const shouldHideContent = isVerySmall; // Only hide content for very small heights
   const shouldHideReply = isSmall; // Hide replies for small heights
   const shouldReducePadding = isSmall; // Reduce padding for small heights
-  
+
   const cardStyles = {
     backgroundColor: theme.colors.surface,
     borderColor: theme.colors.border,
@@ -52,8 +52,8 @@ export function ReviewCard({
     // Constrain max height based on available space to prevent cutoff
     ...(availableHeight && {
       maxHeight: `${availableHeight - 20}px`, // Leave 20px margin for padding
-      minHeight: 'auto'
-    })
+      minHeight: 'auto',
+    }),
   };
 
   const formatDate = (dateString: string): string => {
@@ -142,7 +142,9 @@ export function ReviewCard({
               overflowWrap: 'break-word',
             }}
           >
-            {isCompact ? truncateText(review.content, 120) : truncateText(review.content, 200)}
+            {isCompact
+              ? truncateText(review.content, 120)
+              : truncateText(review.content, 200)}
           </p>
         </div>
       ) : shouldHideContent ? (
@@ -201,10 +203,12 @@ export function ReviewCard({
 
         {/* Author Details */}
         <div className='flex-grow min-w-0'>
-          <p className={cn(
-            'font-medium truncate',
-            isVerySmall ? 'text-xs' : 'text-sm'
-          )}>
+          <p
+            className={cn(
+              'font-medium truncate',
+              isVerySmall ? 'text-xs' : 'text-sm'
+            )}
+          >
             {review.author.name}
           </p>
           {review.author.location && !isVerySmall && (

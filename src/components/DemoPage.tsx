@@ -21,6 +21,8 @@ export function DemoPage() {
     showDate: true,
     showAvatar: true,
     showReply: true,
+    hideGlobalReviews: false,
+    hideTopBanner: false,
     height: 400,
     width: '100%',
     autoHeight: false,

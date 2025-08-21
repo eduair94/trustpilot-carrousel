@@ -76,7 +76,15 @@ export function StaticReviewsGrid({
   config,
   className,
 }: StaticReviewsGridProps) {
-  const { theme, showRating, showDate, showAvatar, showReply, maxReviews, height } = config;
+  const {
+    theme,
+    showRating,
+    showDate,
+    showAvatar,
+    showReply,
+    maxReviews,
+    height,
+  } = config;
   const displayReviews = reviews.slice(0, maxReviews);
 
   const containerStyles = {
@@ -99,16 +107,20 @@ export function StaticReviewsGrid({
       >
         <div className='flex items-center justify-between'>
           <div>
-            <h2 className={cn(
-              'font-semibold',
-              height <= 220 ? 'text-base' : 'text-lg'
-            )}>
+            <h2
+              className={cn(
+                'font-semibold',
+                height <= 220 ? 'text-base' : 'text-lg'
+              )}
+            >
               {company.name}
             </h2>
-            <div className={cn(
-              'flex items-center gap-2 opacity-75',
-              height <= 220 ? 'text-xs' : 'text-sm'
-            )}>
+            <div
+              className={cn(
+                'flex items-center gap-2 opacity-75',
+                height <= 220 ? 'text-xs' : 'text-sm'
+              )}
+            >
               <span>⭐ {company.average_rating.toFixed(1)}</span>
               <span>•</span>
               <span>{company.total_reviews} reviews</span>
@@ -135,7 +147,9 @@ export function StaticReviewsGrid({
               showDate={showDate}
               showAvatar={showAvatar}
               showReply={showReply}
-              availableHeight={height - (height <= 220 ? 60 : 80) - (height <= 250 ? 16 : 32)} // Dynamic available height accounting for padding
+              availableHeight={
+                height - (height <= 220 ? 60 : 80) - (height <= 250 ? 16 : 32)
+              } // Dynamic available height accounting for padding
             />
           ))}
         </div>
