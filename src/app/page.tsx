@@ -59,8 +59,8 @@ function ErrorDisplay({ message, theme }: ErrorDisplayProps) {
         theme === 'dark'
           ? 'bg-gray-900 border-gray-700 text-gray-300'
           : theme === 'custom'
-          ? 'bg-transparent border-gray-300 text-gray-600'
-          : 'bg-gray-50 border-gray-200 text-gray-600'
+            ? 'bg-transparent border-gray-300 text-gray-600'
+            : 'bg-gray-50 border-gray-200 text-gray-600'
       }`}
     >
       <div className='text-center p-6'>
@@ -139,30 +139,32 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
     }
 
     // Configure theme
-    const baseThemeConfig = validatedParams.theme === 'custom' 
-      ? CARROUSEL_CONFIG.themes.custom
-      : CARROUSEL_CONFIG.themes[validatedParams.theme];
+    const baseThemeConfig =
+      validatedParams.theme === 'custom'
+        ? CARROUSEL_CONFIG.themes.custom
+        : CARROUSEL_CONFIG.themes[validatedParams.theme];
 
     // Create custom theme if custom colors are provided
-    const themeConfig = validatedParams.theme === 'custom' || 
-                       validatedParams.backgroundColor || 
-                       validatedParams.textColor || 
-                       validatedParams.primaryColor ||
-                       validatedParams.surfaceColor ||
-                       validatedParams.borderColor ||
-                       validatedParams.starColor
-      ? createCustomTheme({
-          theme: validatedParams.theme,
-          backgroundColor: validatedParams.backgroundColor,
-          textColor: validatedParams.textColor,
-          primaryColor: validatedParams.primaryColor,
-          surfaceColor: validatedParams.surfaceColor,
-          borderColor: validatedParams.borderColor,
-          starColor: validatedParams.starColor,
-          transparent: validatedParams.transparent,
-          domain: validatedParams.domain, // Required for interface compliance
-        })
-      : baseThemeConfig;
+    const themeConfig =
+      validatedParams.theme === 'custom' ||
+      validatedParams.backgroundColor ||
+      validatedParams.textColor ||
+      validatedParams.primaryColor ||
+      validatedParams.surfaceColor ||
+      validatedParams.borderColor ||
+      validatedParams.starColor
+        ? createCustomTheme({
+            theme: validatedParams.theme,
+            backgroundColor: validatedParams.backgroundColor,
+            textColor: validatedParams.textColor,
+            primaryColor: validatedParams.primaryColor,
+            surfaceColor: validatedParams.surfaceColor,
+            borderColor: validatedParams.borderColor,
+            starColor: validatedParams.starColor,
+            transparent: validatedParams.transparent,
+            domain: validatedParams.domain, // Required for interface compliance
+          })
+        : baseThemeConfig;
 
     return (
       <main className='w-full h-full'>
@@ -199,11 +201,13 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
 
     // Get theme from params or default
     const resolvedSearchParamsForTheme = await searchParams;
-    const theme = (resolvedSearchParamsForTheme.theme === 'dark' 
-      ? 'dark' 
-      : resolvedSearchParamsForTheme.theme === 'custom'
-      ? 'custom'
-      : 'light') as 'light' | 'dark' | 'custom';
+    const theme = (
+      resolvedSearchParamsForTheme.theme === 'dark'
+        ? 'dark'
+        : resolvedSearchParamsForTheme.theme === 'custom'
+          ? 'custom'
+          : 'light'
+    ) as 'light' | 'dark' | 'custom';
 
     if (error instanceof z.ZodError) {
       const missingDomain = error.issues.find(issue =>

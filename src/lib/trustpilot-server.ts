@@ -354,6 +354,7 @@ class TrustpilotServerClient {
     params: FetchReviewsParams
   ): Promise<TrustpilotResponse | null> {
     try {
+      console.log('Params', params);
       const url = new URL(TrustpilotServerClient.API_URL);
       url.pathname = '/trustpilot/feedbacks/filtered';
       url.searchParams.set('domain', params.domain);

@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo, useEffect, useState } from 'react';
-import { CarrouselConfig, CarrouselConfigSchema } from '@/lib/types';
 import { DEFAULT_CONFIG, validateConfig } from '@/lib/config';
+import { CarrouselConfig, CarrouselConfigSchema } from '@/lib/types';
+import { useEffect, useMemo, useState } from 'react';
 
 // ============================================
 // URL PARAMS HOOK
@@ -14,7 +14,9 @@ export function useURLParams(): {
   errors: string[];
   rawParams: Record<string, string>;
 } {
-  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
+    null
+  );
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -34,7 +36,7 @@ export function useURLParams(): {
     try {
       // Parse and validate with Zod schema
       const parsedConfig = CarrouselConfigSchema.parse(rawParams);
-      
+
       // Merge with defaults
       const config = {
         ...DEFAULT_CONFIG,
@@ -53,11 +55,13 @@ export function useURLParams(): {
     } catch (error) {
       // Handle Zod validation errors
       if (error && typeof error === 'object' && 'errors' in error) {
-        const zodError = error as { errors: Array<{ message: string; path: string[] }> };
-        const errors = zodError.errors.map(err => 
-          `${err.path.join('.')}: ${err.message}`
+        const zodError = error as {
+          errors: Array<{ message: string; path: string[] }>;
+        };
+        const errors = zodError.errors.map(
+          err => `${err.path.join('.')}: ${err.message}`
         );
-        
+
         return {
           config: DEFAULT_CONFIG,
           isValid: false,
@@ -86,7 +90,9 @@ export function useURLParams(): {
  * Hook to get a specific URL parameter
  */
 export function useURLParam(key: string): string | null {
-  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(null);
+  const [searchParams, setSearchParams] = useState<URLSearchParams | null>(
+    null
+  );
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -119,7 +125,7 @@ export function useIframeDimensions(): {
   height: number;
 } {
   const isIframe = useIsIframe();
-  
+
   return useMemo(() => {
     if (!isIframe || typeof window === 'undefined') {
       return { width: 0, height: 0 };
@@ -148,11 +154,11 @@ export function useIsMobile(): boolean {
 export function useSlidesPerView(): number {
   return useMemo(() => {
     if (typeof window === 'undefined') return 1;
-    
+
     const width = window.innerWidth;
-    if (width < 640) return 1;      // Mobile
-    if (width < 1024) return 2;     // Tablet
-    return 3;                       // Desktop
+    if (width < 640) return 1; // Mobile
+    if (width < 1024) return 2; // Tablet
+    return 3; // Desktop
   }, []);
 }
 
@@ -163,7 +169,10 @@ export function useSlidesPerView(): number {
 /**
  * Parses boolean parameter from string
  */
-export function parseBoolean(value: string | null, defaultValue: boolean = false): boolean {
+export function parseBoolean(
+  value: string | null,
+  defaultValue: boolean = false
+): boolean {
   if (!value) return defaultValue;
   const lowercased = value.toLowerCase();
   return lowercased === 'true' || lowercased === '1' || lowercased === 'yes';
@@ -173,20 +182,20 @@ export function parseBoolean(value: string | null, defaultValue: boolean = false
  * Parses number parameter from string
  */
 export function parseNumber(
-  value: string | null, 
-  defaultValue: number = 0, 
-  min?: number, 
+  value: string | null,
+  defaultValue: number = 0,
+  min?: number,
   max?: number
 ): number {
   if (!value) return defaultValue;
-  
+
   const parsed = parseFloat(value);
   if (isNaN(parsed)) return defaultValue;
-  
+
   let result = parsed;
   if (min !== undefined) result = Math.max(min, result);
   if (max !== undefined) result = Math.min(max, result);
-  
+
   return result;
 }
 
@@ -199,11 +208,11 @@ export function parseEnum<T extends string>(
   defaultValue: T
 ): T {
   if (!value) return defaultValue;
-  
-  const found = allowedValues.find(allowed => 
-    allowed.toLowerCase() === value.toLowerCase()
+
+  const found = allowedValues.find(
+    allowed => allowed.toLowerCase() === value.toLowerCase()
   );
-  
+
   return found || defaultValue;
 }
 
@@ -214,7 +223,9 @@ export function parseEnum<T extends string>(
 /**
  * Creates a configuration object from URL search params
  */
-export function createConfigFromParams(params: URLSearchParams): Partial<CarrouselConfig> {
+export function createConfigFromParams(
+  params: URLSearchParams
+): Partial<CarrouselConfig> {
   const config: Partial<CarrouselConfig> = {};
 
   // Required domain
@@ -232,13 +243,19 @@ export function createConfigFromParams(params: URLSearchParams): Partial<Carrous
   if (interval) config.interval = parseNumber(interval, 5000, 1000, 30000);
 
   const theme = params.get('theme');
-  if (theme) config.theme = parseEnum(theme, ['light', 'dark', 'custom'] as const, 'light');
+  if (theme)
+    config.theme = parseEnum(
+      theme,
+      ['light', 'dark', 'custom'] as const,
+      'light'
+    );
 
   const maxReviews = params.get('maxReviews');
   if (maxReviews) config.maxReviews = parseNumber(maxReviews, 10, 1, 50);
 
   const minRating = params.get('minRating');
-  if (minRating) config.minRating = parseNumber(minRating, 1, 1, 5) as 1 | 2 | 3 | 4 | 5;
+  if (minRating)
+    config.minRating = parseNumber(minRating, 1, 1, 5) as 1 | 2 | 3 | 4 | 5;
 
   const language = params.get('language');
   if (language) config.language = language;
@@ -256,10 +273,12 @@ export function createConfigFromParams(params: URLSearchParams): Partial<Carrous
   if (showReply !== null) config.showReply = parseBoolean(showReply, true);
 
   const hideGlobalReviews = params.get('hideGlobalReviews');
-  if (hideGlobalReviews !== null) config.hideGlobalReviews = parseBoolean(hideGlobalReviews, false);
+  if (hideGlobalReviews !== null)
+    config.hideGlobalReviews = parseBoolean(hideGlobalReviews, false);
 
   const hideTopBanner = params.get('hideTopBanner');
-  if (hideTopBanner !== null) config.hideTopBanner = parseBoolean(hideTopBanner, false);
+  if (hideTopBanner !== null)
+    config.hideTopBanner = parseBoolean(hideTopBanner, false);
 
   const height = params.get('height');
   if (height) config.height = parseNumber(height, 400, 200, 800);
@@ -292,7 +311,8 @@ export function createConfigFromParams(params: URLSearchParams): Partial<Carrous
 
   // Transparency support
   const transparent = params.get('transparent');
-  if (transparent !== null) config.transparent = parseBoolean(transparent, true);
+  if (transparent !== null)
+    config.transparent = parseBoolean(transparent, true);
 
   return config;
 }
@@ -300,7 +320,9 @@ export function createConfigFromParams(params: URLSearchParams): Partial<Carrous
 /**
  * Converts configuration object to URL search params
  */
-export function configToSearchParams(config: Partial<CarrouselConfig>): URLSearchParams {
+export function configToSearchParams(
+  config: Partial<CarrouselConfig>
+): URLSearchParams {
   const params = new URLSearchParams();
 
   Object.entries(config).forEach(([key, value]) => {
@@ -320,7 +342,7 @@ export function updateURLWithConfig(config: Partial<CarrouselConfig>): void {
 
   const params = configToSearchParams(config);
   const newUrl = `${window.location.pathname}?${params.toString()}`;
-  
+
   // Update URL without page reload
   window.history.replaceState({}, '', newUrl);
 }

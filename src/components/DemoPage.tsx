@@ -8,6 +8,7 @@ import { IframeResizerDemo } from './IframeResizerDemo';
 
 export function DemoPage() {
   const [origin, setOrigin] = useState('');
+  const [isIframe, setIsIframe] = useState(false);
   const [config, setConfig] = useState<CarrouselConfig>({
     domain: 'google.com',
     page: 1,
@@ -37,9 +38,30 @@ export function DemoPage() {
   });
 
   useEffect(() => {
-    // Set the origin when component mounts (client-side only)
-    setOrigin(window.location.origin);
+    if (typeof window !== 'undefined') {
+      setOrigin(window.location.origin);
+      setIsIframe(window.self !== window.top);
+    }
   }, []);
+
+  if (isIframe) {
+    return (
+      <div className='min-h-screen flex items-center justify-center bg-red-50'>
+        <div className='p-8 bg-white rounded-xl shadow-lg border border-red-200 text-center'>
+          <h1 className='text-2xl font-bold text-red-600 mb-2'>
+            Access Denied
+          </h1>
+          <p className='text-gray-700 mb-2'>
+            The demo page cannot be loaded inside an iframe for security
+            reasons.
+          </p>
+          <p className='text-gray-500 text-sm'>
+            Please open this page directly in your browser.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleConfigChange = (newConfig: CarrouselConfig) => {
     setConfig(newConfig);

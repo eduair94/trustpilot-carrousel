@@ -146,7 +146,7 @@ export function ClientCarrousel({
                   <div className='flex items-center gap-2 text-sm opacity-75'>
                     <CompactRating
                       rating={company.average_rating}
-                      size="xs"
+                      size='xs'
                       theme={theme}
                     />
                     <span>•</span>
@@ -173,7 +173,7 @@ export function ClientCarrousel({
         <div
           className='p-4 flex items-center justify-center'
           style={{
-            height: hideTopBanner ? `${height}px` : `${height - 80}px`
+            height: hideTopBanner ? `${height}px` : `${height - 80}px`,
           }}
         >
           <div className='animate-pulse text-center'>
