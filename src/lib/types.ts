@@ -12,7 +12,7 @@ export interface CarrouselConfig {
   page?: number;
   autoplay?: boolean;
   interval?: number;
-  theme?: 'light' | 'dark';
+  theme?: 'light' | 'dark' | 'custom';
   maxReviews?: number;
   minRating?: number;
   language?: string;
@@ -29,6 +29,15 @@ export interface CarrouselConfig {
   height?: number;
   width?: string | number;
   autoHeight?: boolean;
+  // Enhanced color customization
+  backgroundColor?: string;
+  textColor?: string;
+  primaryColor?: string;
+  surfaceColor?: string;
+  borderColor?: string;
+  starColor?: string;
+  // Transparency support
+  transparent?: boolean;
 }
 
 export const CarrouselConfigSchema = z.object({
@@ -36,7 +45,7 @@ export const CarrouselConfigSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   autoplay: z.coerce.boolean().default(true),
   interval: z.coerce.number().min(1000).max(10000).default(5000),
-  theme: z.enum(['light', 'dark']).default('light'),
+  theme: z.enum(['light', 'dark', 'custom']).default('light'),
   maxReviews: z.coerce.number().min(1).max(50).default(10),
   minRating: z.coerce.number().min(1).max(5).default(1),
   language: z.string().default('en'),
@@ -49,6 +58,15 @@ export const CarrouselConfigSchema = z.object({
   height: z.coerce.number().min(200).max(800).default(400),
   sort: z.enum(['latest', 'rating']).default('latest'),
   autoHeight: z.coerce.boolean().default(false),
+  // Enhanced color customization
+  backgroundColor: z.string().optional(),
+  textColor: z.string().optional(),
+  primaryColor: z.string().optional(),
+  surfaceColor: z.string().optional(),
+  borderColor: z.string().optional(),
+  starColor: z.string().optional(),
+  // Transparency support
+  transparent: z.coerce.boolean().default(true),
 });
 
 // ============================================
@@ -94,6 +112,8 @@ export interface ThemeConfig {
     lg: string;
     full: string;
   };
+  // Support for transparency
+  transparent?: boolean;
 }
 
 // ============================================

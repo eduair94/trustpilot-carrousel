@@ -2,6 +2,7 @@
 
 import { CarrouselConfig, CarrouselConfigSchema } from '@/lib/types';
 import { useEffect, useState } from 'react';
+import { ColorPicker, ThemePresetPicker } from './ColorPicker';
 import { IframeResizerDemo } from './IframeResizerDemo';
 
 interface IframeConfiguratorProps {
@@ -17,7 +18,7 @@ export function IframeConfigurator({
     page: 1,
     autoplay: true,
     interval: 5000,
-    theme: 'light',
+    theme: 'custom',
     maxReviews: 5,
     minRating: 1,
     language: 'en',
@@ -30,6 +31,14 @@ export function IframeConfigurator({
     height: 400,
     width: '100%',
     autoHeight: true,
+    // Enhanced color customization (transparent by default)
+    backgroundColor: 'transparent',
+    textColor: '#191919',
+    primaryColor: '#00b67a',
+    surfaceColor: 'rgba(255, 255, 255, 0.95)',
+    borderColor: 'rgba(229, 231, 235, 0.8)',
+    starColor: '#ffc107',
+    transparent: true,
   });
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -80,7 +89,10 @@ export function IframeConfigurator({
       params.append('hideAvatar', config.hideAvatar.toString());
     if (config.hideReply !== undefined && config.hideReply !== false)
       params.append('hideReply', config.hideReply.toString());
-    if (config.hideGlobalReviews !== undefined && config.hideGlobalReviews !== false)
+    if (
+      config.hideGlobalReviews !== undefined &&
+      config.hideGlobalReviews !== false
+    )
       params.append('hideGlobalReviews', config.hideGlobalReviews.toString());
     if (config.hideTopBanner !== undefined && config.hideTopBanner !== false)
       params.append('hideTopBanner', config.hideTopBanner.toString());
@@ -88,6 +100,24 @@ export function IframeConfigurator({
       params.append('height', config.height.toString());
     if (config.autoHeight !== undefined && config.autoHeight !== false)
       params.append('autoHeight', config.autoHeight.toString());
+    // Enhanced color customization
+    if (config.backgroundColor && config.backgroundColor !== 'transparent')
+      params.append('backgroundColor', config.backgroundColor);
+    if (config.textColor && config.textColor !== '#191919')
+      params.append('textColor', config.textColor);
+    if (config.primaryColor && config.primaryColor !== '#00b67a')
+      params.append('primaryColor', config.primaryColor);
+    if (
+      config.surfaceColor &&
+      config.surfaceColor !== 'rgba(255, 255, 255, 0.95)'
+    )
+      params.append('surfaceColor', config.surfaceColor);
+    if (config.borderColor && config.borderColor !== 'rgba(229, 231, 235, 0.8)')
+      params.append('borderColor', config.borderColor);
+    if (config.starColor && config.starColor !== '#ffc107')
+      params.append('starColor', config.starColor);
+    if (config.transparent !== undefined && config.transparent !== true)
+      params.append('transparent', config.transparent.toString());
 
     return `${origin}/?${params.toString()}`;
   };
@@ -184,48 +214,85 @@ export function IframeConfigurator({
 
             {/* Theme Selection */}
             <div>
-              <label className='block text-sm font-semibold text-gray-700 mb-2'>
-                Theme
-              </label>
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-                <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    value='light'
-                    checked={config.theme === 'light'}
-                    onChange={e => handleInputChange('theme', e.target.value)}
-                    className='mr-3 text-purple-500'
-                  />
-                  <div>
-                    <div className='font-medium text-sm sm:text-base'>
-                      🌞 Light
-                    </div>
-                    <div className='text-xs sm:text-sm text-gray-500'>
-                      Clean white background
-                    </div>
-                  </div>
-                </label>
-                <label className='flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors'>
-                  <input
-                    type='radio'
-                    name='theme'
-                    value='dark'
-                    checked={config.theme === 'dark'}
-                    onChange={e => handleInputChange('theme', e.target.value)}
-                    className='mr-3 text-purple-500'
-                  />
-                  <div>
-                    <div className='font-medium text-sm sm:text-base'>
-                      🌙 Dark
-                    </div>
-                    <div className='text-xs sm:text-sm text-gray-500'>
-                      Dark elegant style
-                    </div>
-                  </div>
-                </label>
-              </div>
+              <ThemePresetPicker
+                value={config.theme || 'custom'}
+                onChange={theme => handleInputChange('theme', theme)}
+              />
             </div>
+
+            {/* Color Customization */}
+            {config.theme === 'custom' && (
+              <div className='space-y-4 p-4 bg-purple-50 rounded-lg border border-purple-200'>
+                <h4 className='text-sm font-semibold text-purple-800 mb-3'>
+                  🎨 Color Customization
+                </h4>
+
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                  <ColorPicker
+                    label='Background Color'
+                    value={config.backgroundColor || 'transparent'}
+                    onChange={color =>
+                      handleInputChange('backgroundColor', color)
+                    }
+                  />
+
+                  <ColorPicker
+                    label='Text Color'
+                    value={config.textColor || '#191919'}
+                    onChange={color => handleInputChange('textColor', color)}
+                  />
+
+                  <ColorPicker
+                    label='Primary Color'
+                    value={config.primaryColor || '#00b67a'}
+                    onChange={color => handleInputChange('primaryColor', color)}
+                  />
+
+                  <ColorPicker
+                    label='Surface Color'
+                    value={config.surfaceColor || 'rgba(255, 255, 255, 0.95)'}
+                    onChange={color => handleInputChange('surfaceColor', color)}
+                  />
+
+                  <ColorPicker
+                    label='Border Color'
+                    value={config.borderColor || 'rgba(229, 231, 235, 0.8)'}
+                    onChange={color => handleInputChange('borderColor', color)}
+                  />
+
+                  <ColorPicker
+                    label='Star Color'
+                    value={config.starColor || '#ffc107'}
+                    onChange={color => handleInputChange('starColor', color)}
+                  />
+                </div>
+
+                {/* Transparency Toggle */}
+                <div className='flex items-center space-x-3 p-3 bg-white rounded-lg border'>
+                  <input
+                    type='checkbox'
+                    id='transparent'
+                    checked={config.transparent !== false}
+                    onChange={e =>
+                      handleInputChange('transparent', e.target.checked)
+                    }
+                    className='w-4 h-4 text-purple-500 rounded focus:ring-2 focus:ring-purple-500'
+                  />
+                  <label
+                    htmlFor='transparent'
+                    className='text-sm text-gray-700 cursor-pointer flex-1'
+                  >
+                    <span className='font-semibold'>
+                      Transparent Background
+                    </span>
+                    <span className='block text-xs text-gray-600 mt-1'>
+                      Make the carousel background transparent for better
+                      embedding
+                    </span>
+                  </label>
+                </div>
+              </div>
+            )}
 
             {/* Reviews Settings */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
@@ -448,7 +515,7 @@ export function IframeConfigurator({
                 src={generateIframeUrl()}
                 width='100%'
                 height={config.height || 400}
-                className='rounded-lg shadow-lg bg-white w-full'
+                className='rounded-lg w-full'
                 style={{
                   minHeight: `${Math.min(config.height || 400, 300)}px`,
                   maxHeight: `${config.height || 400}px`,

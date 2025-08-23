@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { A11y, Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { ReviewCard } from './ReviewCard';
+import { CompactRating } from './ui/StarRating';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -143,7 +144,11 @@ export function ClientCarrousel({
                 <h2 className='text-lg font-semibold'>{company.name}</h2>
                 {!hideGlobalReviews && (
                   <div className='flex items-center gap-2 text-sm opacity-75'>
-                    <span>⭐ {company.average_rating.toFixed(1)}</span>
+                    <CompactRating
+                      rating={company.average_rating}
+                      size="xs"
+                      theme={theme}
+                    />
                     <span>•</span>
                     <span>{company.total_reviews} reviews</span>
                   </div>
@@ -213,7 +218,11 @@ export function ClientCarrousel({
                     height <= 220 ? 'text-xs' : 'text-sm'
                   )}
                 >
-                  <span>⭐ {company.average_rating.toFixed(1)}</span>
+                  <CompactRating
+                    rating={company.average_rating}
+                    size={height <= 220 ? 'xs' : 'sm'}
+                    theme={theme}
+                  />
                   <span>•</span>
                   <span>{company.total_reviews} reviews</span>
                 </div>

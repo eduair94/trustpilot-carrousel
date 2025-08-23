@@ -192,6 +192,21 @@ export const lightTheme: ThemeConfig = {
     lg: '0.75rem',      // 12px
     full: '9999px',     // Full rounded
   },
+  transparent: false,
+};
+
+/**
+ * Transparent theme configuration (default)
+ */
+export const transparentTheme: ThemeConfig = {
+  ...lightTheme,
+  colors: {
+    ...lightTheme.colors,
+    background: 'transparent',   // Transparent background
+    surface: 'rgba(255, 255, 255, 0.95)',  // Semi-transparent surface
+    border: 'rgba(229, 231, 235, 0.8)',    // Semi-transparent border
+  },
+  transparent: true,
 };
 
 /**
@@ -215,8 +230,76 @@ export const darkTheme: ThemeConfig = {
 /**
  * Gets theme configuration based on theme name
  */
-export function getTheme(themeName: 'light' | 'dark'): ThemeConfig {
-  return themeName === 'dark' ? darkTheme : lightTheme;
+export function getTheme(themeName: 'light' | 'dark' | 'custom'): ThemeConfig {
+  switch (themeName) {
+    case 'dark':
+      return darkTheme;
+    case 'custom':
+      return transparentTheme; // Default custom theme is transparent
+    default:
+      return transparentTheme; // Default to transparent theme for better embedding
+  }
+}
+
+/**
+ * Creates a custom theme from configuration
+ */
+export function createCustomTheme(config: CarrouselConfig): ThemeConfig {
+  const baseTheme = config.transparent ? transparentTheme : lightTheme;
+  
+  // If no custom colors provided, return base theme
+  if (!config.backgroundColor && !config.textColor && !config.primaryColor && 
+      !config.surfaceColor && !config.borderColor && !config.starColor) {
+    return baseTheme;
+  }
+
+  // Create custom theme with user-provided colors
+  const customTheme: ThemeConfig = {
+    ...baseTheme,
+    colors: {
+      ...baseTheme.colors,
+      ...(config.backgroundColor && { background: config.backgroundColor }),
+      ...(config.textColor && { 
+        text: config.textColor,
+        textSecondary: adjustColorOpacity(config.textColor, 0.7)
+      }),
+      ...(config.primaryColor && { 
+        primary: config.primaryColor,
+        success: config.primaryColor 
+      }),
+      ...(config.surfaceColor && { surface: config.surfaceColor }),
+      ...(config.borderColor && { 
+        border: config.borderColor,
+        starEmpty: config.borderColor
+      }),
+      ...(config.starColor && { star: config.starColor }),
+    },
+    transparent: config.transparent ?? true,
+  };
+
+  return customTheme;
+}
+
+/**
+ * Adjusts color opacity (basic implementation)
+ */
+function adjustColorOpacity(color: string, opacity: number): string {
+  // If it's already in rgba format, adjust the opacity
+  if (color.startsWith('rgba(')) {
+    return color.replace(/[\d\.]+\)$/g, `${opacity})`);
+  }
+  
+  // If it's a hex color, convert to rgba
+  if (color.startsWith('#')) {
+    const hex = color.slice(1);
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+  
+  // For other formats, just return the original color
+  return color;
 }
 
 // ============================================

@@ -5,6 +5,7 @@ import {
   getReviewsData,
 } from '@/lib/trustpilot-server';
 import { NormalizedReviewsData } from '@/lib/types';
+import { createCustomTheme } from '@/lib/utils';
 import { headers } from 'next/headers';
 import { z } from 'zod';
 import { ReviewsCarrouselClient } from '../components/ReviewsCarrouselClient';
@@ -18,7 +19,7 @@ const SearchParamsSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   autoplay: z.coerce.boolean().default(true),
   interval: z.coerce.number().min(1000).max(10000).default(5000),
-  theme: z.enum(['light', 'dark']).default('light'),
+  theme: z.enum(['light', 'dark', 'custom']).default('light'),
   maxReviews: z.coerce.number().min(1).max(50).default(10),
   minRating: z.coerce.number().min(1).max(5).default(1),
   language: z.string().default('en'),
@@ -31,19 +32,16 @@ const SearchParamsSchema = z.object({
   height: z.coerce.number().min(200).max(800).default(400),
   sort: z.enum(['latest', 'rating']).default('latest'),
   autoHeight: z.coerce.boolean().default(false),
+  // Enhanced color customization
+  backgroundColor: z.string().optional(),
+  textColor: z.string().optional(),
+  primaryColor: z.string().optional(),
+  surfaceColor: z.string().optional(),
+  borderColor: z.string().optional(),
+  starColor: z.string().optional(),
+  // Transparency support
+  transparent: z.coerce.boolean().default(true),
 });
-
-// ============================================
-// LOADING COMPONENT
-// ============================================
-
-function CarrouselSkeleton() {
-  return (
-    <div className='w-full h-96 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center'>
-      <div className='text-gray-400 text-sm'>Loading reviews...</div>
-    </div>
-  );
-}
 
 // ============================================
 // ERROR COMPONENT
@@ -51,7 +49,7 @@ function CarrouselSkeleton() {
 
 interface ErrorDisplayProps {
   message: string;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'custom';
 }
 
 function ErrorDisplay({ message, theme }: ErrorDisplayProps) {
@@ -60,6 +58,8 @@ function ErrorDisplay({ message, theme }: ErrorDisplayProps) {
       className={`w-full h-96 rounded-lg border flex items-center justify-center ${
         theme === 'dark'
           ? 'bg-gray-900 border-gray-700 text-gray-300'
+          : theme === 'custom'
+          ? 'bg-transparent border-gray-300 text-gray-600'
           : 'bg-gray-50 border-gray-200 text-gray-600'
       }`}
     >
@@ -139,7 +139,30 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
     }
 
     // Configure theme
-    const themeConfig = CARROUSEL_CONFIG.themes[validatedParams.theme];
+    const baseThemeConfig = validatedParams.theme === 'custom' 
+      ? CARROUSEL_CONFIG.themes.custom
+      : CARROUSEL_CONFIG.themes[validatedParams.theme];
+
+    // Create custom theme if custom colors are provided
+    const themeConfig = validatedParams.theme === 'custom' || 
+                       validatedParams.backgroundColor || 
+                       validatedParams.textColor || 
+                       validatedParams.primaryColor ||
+                       validatedParams.surfaceColor ||
+                       validatedParams.borderColor ||
+                       validatedParams.starColor
+      ? createCustomTheme({
+          theme: validatedParams.theme,
+          backgroundColor: validatedParams.backgroundColor,
+          textColor: validatedParams.textColor,
+          primaryColor: validatedParams.primaryColor,
+          surfaceColor: validatedParams.surfaceColor,
+          borderColor: validatedParams.borderColor,
+          starColor: validatedParams.starColor,
+          transparent: validatedParams.transparent,
+          domain: validatedParams.domain, // Required for interface compliance
+        })
+      : baseThemeConfig;
 
     return (
       <main className='w-full h-full'>
@@ -176,9 +199,11 @@ export default async function CarrouselPage({ searchParams }: PageProps) {
 
     // Get theme from params or default
     const resolvedSearchParamsForTheme = await searchParams;
-    const theme = (
-      resolvedSearchParamsForTheme.theme === 'dark' ? 'dark' : 'light'
-    ) as 'light' | 'dark';
+    const theme = (resolvedSearchParamsForTheme.theme === 'dark' 
+      ? 'dark' 
+      : resolvedSearchParamsForTheme.theme === 'custom'
+      ? 'custom'
+      : 'light') as 'light' | 'dark' | 'custom';
 
     if (error instanceof z.ZodError) {
       const missingDomain = error.issues.find(issue =>

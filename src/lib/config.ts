@@ -1,5 +1,5 @@
 import { CarrouselConfig } from './types';
-import { darkTheme, lightTheme } from './utils';
+import { darkTheme, lightTheme, transparentTheme } from './utils';
 
 // ============================================
 // DEFAULT CONFIGURATION
@@ -27,6 +27,15 @@ export const DEFAULT_CONFIG: Required<CarrouselConfig> = {
   hideGlobalReviews: false,
   hideTopBanner: false,
   autoHeight: false,
+  // Enhanced color customization
+  backgroundColor: 'transparent',
+  textColor: '#191919',
+  primaryColor: '#00b67a',
+  surfaceColor: '#ffffff',
+  borderColor: '#e5e7eb',
+  starColor: '#ffc107',
+  // Transparency support (default to transparent)
+  transparent: true,
 };
 
 // ============================================
@@ -54,6 +63,7 @@ export const API_CONFIG = {
 export const THEME_CONFIG = {
   light: lightTheme,
   dark: darkTheme,
+  custom: transparentTheme,
 } as const;
 
 // ============================================

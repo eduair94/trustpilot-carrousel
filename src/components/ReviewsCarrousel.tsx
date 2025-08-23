@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Suspense } from 'react';
 import { ClientCarrousel } from './ClientCarrousel';
 import { ReviewCard } from './ReviewCard';
+import { CompactRating } from './ui/StarRating';
 
 // ============================================
 // COMPONENT INTERFACES
@@ -18,6 +19,8 @@ interface CarrouselConfig {
   showReply: boolean;
   maxReviews: number;
   height: number;
+  hideGlobalReviews: boolean;
+  hideTopBanner: boolean;
 }
 
 interface ReviewsCarrouselProps {
@@ -121,7 +124,11 @@ export function StaticReviewsGrid({
                 height <= 220 ? 'text-xs' : 'text-sm'
               )}
             >
-              <span>⭐ {company.average_rating.toFixed(1)}</span>
+              <CompactRating
+                rating={company.average_rating}
+                size={height <= 220 ? 'xs' : 'sm'}
+                theme={theme}
+              />
               <span>•</span>
               <span>{company.total_reviews} reviews</span>
             </div>

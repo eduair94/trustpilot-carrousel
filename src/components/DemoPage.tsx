@@ -13,7 +13,7 @@ export function DemoPage() {
     page: 1,
     autoplay: true,
     interval: 5000,
-    theme: 'light',
+    theme: 'custom',
     maxReviews: 5,
     minRating: 1,
     language: 'en',
@@ -26,6 +26,14 @@ export function DemoPage() {
     height: 400,
     width: '100%',
     autoHeight: false,
+    // Enhanced color customization (transparent by default)
+    backgroundColor: 'transparent',
+    textColor: '#191919',
+    primaryColor: '#00b67a',
+    surfaceColor: 'rgba(255, 255, 255, 0.95)',
+    borderColor: 'rgba(229, 231, 235, 0.8)',
+    starColor: '#ffc107',
+    transparent: true,
   });
 
   useEffect(() => {

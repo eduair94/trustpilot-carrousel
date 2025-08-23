@@ -232,7 +232,7 @@ export function createConfigFromParams(params: URLSearchParams): Partial<Carrous
   if (interval) config.interval = parseNumber(interval, 5000, 1000, 30000);
 
   const theme = params.get('theme');
-  if (theme) config.theme = parseEnum(theme, ['light', 'dark'] as const, 'light');
+  if (theme) config.theme = parseEnum(theme, ['light', 'dark', 'custom'] as const, 'light');
 
   const maxReviews = params.get('maxReviews');
   if (maxReviews) config.maxReviews = parseNumber(maxReviews, 10, 1, 50);
@@ -270,6 +270,29 @@ export function createConfigFromParams(params: URLSearchParams): Partial<Carrous
     const numWidth = parseFloat(width);
     config.width = isNaN(numWidth) ? width : numWidth;
   }
+
+  // Enhanced color customization
+  const backgroundColor = params.get('backgroundColor');
+  if (backgroundColor) config.backgroundColor = backgroundColor;
+
+  const textColor = params.get('textColor');
+  if (textColor) config.textColor = textColor;
+
+  const primaryColor = params.get('primaryColor');
+  if (primaryColor) config.primaryColor = primaryColor;
+
+  const surfaceColor = params.get('surfaceColor');
+  if (surfaceColor) config.surfaceColor = surfaceColor;
+
+  const borderColor = params.get('borderColor');
+  if (borderColor) config.borderColor = borderColor;
+
+  const starColor = params.get('starColor');
+  if (starColor) config.starColor = starColor;
+
+  // Transparency support
+  const transparent = params.get('transparent');
+  if (transparent !== null) config.transparent = parseBoolean(transparent, true);
 
   return config;
 }
