@@ -85,11 +85,12 @@ export function sanitizeHtml(html: string): string {
 /**
  * Debounces a function call
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function (this: any, ...args: Parameters<T>) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
@@ -99,11 +100,12 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttles a function call
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function (this: any, ...args: Parameters<T>) {
     if (!inThrottle) {
       func.apply(this, args);
@@ -130,6 +132,7 @@ export function generateId(prefix: string = 'id'): string {
 /**
  * Deep merges two objects
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function deepMerge<T extends Record<string, any>>(
   target: T,
   source: Partial<T>
@@ -142,6 +145,7 @@ export function deepMerge<T extends Record<string, any>>(
       typeof source[key] === 'object' &&
       !Array.isArray(source[key])
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       result[key] = deepMerge(result[key] || ({} as any), source[key]);
     } else if (source[key] !== undefined) {
       result[key] = source[key] as T[Extract<keyof T, string>];
@@ -379,12 +383,12 @@ export function createError(
   code: string,
   message: string,
   status?: number,
-  details?: any
-): Error & { code: string; status?: number; details?: any } {
+  details?: unknown
+): Error & { code: string; status?: number; details?: unknown } {
   const error = new Error(message) as Error & {
     code: string;
     status?: number;
-    details?: any;
+    details?: unknown;
   };
   error.code = code;
   if (status) error.status = status;
@@ -409,7 +413,7 @@ export function isApiError(error: unknown, code?: string): boolean {
 /**
  * Creates a simple cache implementation
  */
-export class SimpleCache<T = any> {
+export class SimpleCache<T = unknown> {
   private cache = new Map<string, { value: T; expires: number }>();
   private defaultTTL: number;
 

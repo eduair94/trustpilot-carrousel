@@ -53,7 +53,7 @@ export interface ApiResponse {
   error?: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
   };
   cache?: {
     ttl: number;
@@ -262,7 +262,7 @@ export const FetchReviewsParamsSchema = z.object({
 export interface ApiError extends Error {
   code: string;
   status?: number;
-  details?: any;
+  details?: unknown;
 }
 
 export const API_ERROR_CODES = {

@@ -18,6 +18,15 @@ interface CarrouselConfig {
   showReply: boolean;
   maxReviews: number;
   height: number;
+  hideGlobalReviews: boolean;
+  hideTopBanner: boolean;
+  backgroundColor?: string;
+  textColor?: string;
+  primaryColor?: string;
+  surfaceColor?: string;
+  borderColor?: string;
+  starColor?: string;
+  transparent?: boolean;
 }
 
 interface ReviewsCarrouselClientProps {

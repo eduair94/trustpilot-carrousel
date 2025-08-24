@@ -29,7 +29,7 @@ interface SimilarBusinessUnitsBox {
 }
 
 interface LocationsBox {
-  topLocations: any[];
+  topLocations: unknown[];
 }
 
 interface InfoBusinessUnitBox {
@@ -82,7 +82,7 @@ interface Contact {
 interface Promotion {
   logo: null;
   title: null;
-  sellingPoints: any[];
+  sellingPoints: unknown[];
 }
 
 interface FacebookBox {
@@ -195,7 +195,7 @@ interface RelevantReview {
   reply: null;
   consumersReviewCountOnSameDomain: number;
   consumersReviewCountOnSameLocation: null;
-  productReviews: any[];
+  productReviews: unknown[];
   language: string;
   location: null;
 }
@@ -224,7 +224,7 @@ export interface Review {
   reply: null;
   consumersReviewCountOnSameDomain: number;
   consumersReviewCountOnSameLocation: null;
-  productReviews: any[];
+  productReviews: unknown[];
   language: string;
   location: null;
 }
@@ -283,7 +283,7 @@ export interface BusinessUnit {
   verification: Verification;
   hasCollectedIncentivisedReviews: boolean;
   consumerAlert: null;
-  consumerAlerts: any[];
+  consumerAlerts: unknown[];
   isMerged: boolean;
   contactInfo: ContactInfo;
   activity: Activity;

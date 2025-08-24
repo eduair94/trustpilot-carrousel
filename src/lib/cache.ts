@@ -35,7 +35,7 @@ class SimpleCache<T> {
   /**
    * Estimate the size of data in bytes
    */
-  private estimateSize(data: any): number {
+  private estimateSize(data: unknown): number {
     try {
       const jsonString = JSON.stringify(data);
       return new Blob([jsonString]).size;
@@ -245,7 +245,7 @@ class SimpleCache<T> {
 // ============================================
 
 class RedisCache<T> {
-  private client: any; // Redis client type
+  private client: unknown; // Redis client type - would be RedisClientType if implemented
 
   constructor(private defaultTtl: number = 300) {
     // Initialize Redis client if available
@@ -253,17 +253,20 @@ class RedisCache<T> {
     console.log('Redis cache not implemented yet, using memory cache');
   }
 
-  async set(key: string, data: T, ttl?: number): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async set(_key: string, _data: T, _ttl?: number): Promise<void> {
     // Redis implementation would go here
     throw new Error('Redis cache not implemented');
   }
 
-  async get<U = T>(key: string): Promise<U | null> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async get<U = T>(_key: string): Promise<U | null> {
     // Redis implementation would go here
     throw new Error('Redis cache not implemented');
   }
 
-  async delete(key: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async delete(_key: string): Promise<boolean> {
     // Redis implementation would go here
     throw new Error('Redis cache not implemented');
   }
@@ -306,7 +309,7 @@ const cacheTtl = Math.min(
 const maxCacheItems = parseInt(process.env.CACHE_MAX_ITEMS || '1000');
 const maxCacheMemoryMB = parseInt(process.env.CACHE_MAX_MEMORY_MB || '50');
 
-export const cache = createCache<any>(
+export const cache = createCache<unknown>(
   cacheType,
   cacheTtl,
   maxCacheItems,

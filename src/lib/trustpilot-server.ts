@@ -135,7 +135,8 @@ const FiltersSchema = z.object({
   totalNumberOfFilteredReviews: z.number(),
 });
 
-const TrustpilotResponseSchema = z.object({
+// Schema for Trustpilot API responses - exported for potential future use
+export const TrustpilotResponseSchema = z.object({
   domain: z.string(),
   businessUnit: BusinessUnitSchema,
   reviews: z.array(TrustpilotReviewSchema),
@@ -514,7 +515,7 @@ class TrustpilotServerClient {
       // Log cache stats periodically
       if (Math.random() < 0.1) {
         // 10% chance to log stats
-        const stats = (cache as any).getStats?.();
+        const stats = (cache as { getStats?(): { items: number; memoryUsageMB: number; maxMemoryMB: number } }).getStats?.();
         if (stats) {
           console.log(
             `[TrustpilotServer] Cache stats: ${stats.items} items, ` +
