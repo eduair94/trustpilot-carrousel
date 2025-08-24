@@ -11,6 +11,13 @@ import { z } from 'zod';
 import { ReviewsCarrouselClient } from '../components/ReviewsCarrouselClient';
 
 // ============================================
+// DYNAMIC ROUTE CONFIGURATION
+// ============================================
+
+// Force dynamic rendering since we use searchParams
+export const dynamic = 'force-dynamic';
+
+// ============================================
 // SEARCH PARAMS VALIDATION
 // ============================================
 
