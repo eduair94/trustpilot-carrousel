@@ -2,7 +2,8 @@ module.exports = {
   apps: [
     {
       name: 'trustpilot-carrousel-demo',
-      script: '.output/server/index.mjs',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start',
       cwd: __dirname,
       env: {
         PORT: 4828,
