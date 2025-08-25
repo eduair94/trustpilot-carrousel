@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Trustpilot Iframe Widget — Minimal Demo</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        margin: 24px;
+      }
+      #widget {
+        width: 100%;
+        max-width: 980px;
+        border: 1px solid #e6e9ef;
+        padding: 12px;
+        border-radius: 6px;
+        min-height: 200px;
+      }
+      .info {
+        margin-bottom: 12px;
+        color: #333;
+      }
+      .muted {
+        color: #666;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Trustpilot Iframe Widget — Minimal Demo</h2>
+    <div class="info muted">
+      This demo expects <code>./dist/vanilla.min.js</code> to exist. Open the
+      file directly in your browser or serve it.
+    </div>
+
+    <div id="widget">Loading widget...</div>
+
+    <script src="./dist/vanilla.min.js"></script>
+    <script>
+      (function () {
+        const target = '#widget';
+        const config = {
+          target,
+          domain: 'www.google.com',
+          height: 400,
+          maxReviews: 3,
+          theme: 'light',
+        };
+
+        function showError(msg) {
+          const el = document.querySelector(target);
+          if (el) el.innerText = msg;
+          console.error(msg);
+        }
+
+        function init() {
+          if (
+            window.createTrustpilotWidget &&
+            typeof window.createTrustpilotWidget === 'function'
+          ) {
+            try {
+              const instance = window.createTrustpilotWidget(config);
+              console.log('Trustpilot widget created', instance);
+              // store for manual control in console
+              window._tpWidget = instance;
+              return;
+            } catch (e) {
+              showError('Failed to create widget from bundle: ' + e.message);
+              return;
+            }
+          }
+
+          // fallback: simple iframe pointing to the configured base URL
+          const iframe = document.createElement('iframe');
+          const u = new URL('https://trustpilot.checkleaked.com');
+          u.searchParams.set('domain', config.domain);
+          u.searchParams.set('height', String(config.height));
+          u.searchParams.set('maxReviews', String(config.maxReviews));
+          u.searchParams.set('theme', config.theme);
+          iframe.src = u.toString();
+          iframe.style.width = '100%';
+          iframe.style.height = config.height + 'px';
+          iframe.style.border = '0';
+          const container = document.getElementById('widget');
+          container.innerHTML = '';
+          container.appendChild(iframe);
+          console.log('Fallback iframe inserted');
+        }
+
+        if (document.readyState === 'loading')
+          document.addEventListener('DOMContentLoaded', init);
+        else init();
+      })();
+    </script>
+  </body>
+</html>

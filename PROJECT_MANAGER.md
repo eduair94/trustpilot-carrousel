@@ -126,7 +126,7 @@ Crear un widget iframe que permita a los usuarios mostrar reseñas de Trustpilot
                             ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                 Trustpilot API                              │
-│              (trustpilot.digitalshopuy.com)                 │
+│              (https://trustpilot.checkleaked.com)                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 

@@ -190,11 +190,13 @@ export const ReviewSchema = z.object({
   date: z.string(),
   verified: z.boolean(),
   helpful: z.number().optional(),
-  reply: z.object({
-    content: z.string(),
-    date: z.string(),
-    author: z.string(),
-  }).optional(),
+  reply: z
+    .object({
+      content: z.string(),
+      date: z.string(),
+      author: z.string(),
+    })
+    .optional(),
 });
 
 export const CompanySchema = z.object({
@@ -214,20 +216,26 @@ export const PaginationSchema = z.object({
 
 export const ApiResponseSchema = z.object({
   success: z.boolean(),
-  data: z.object({
-    reviews: z.array(ReviewSchema),
-    pagination: PaginationSchema,
-    company: CompanySchema,
-  }).optional(),
-  error: z.object({
-    code: z.string(),
-    message: z.string(),
-    details: z.any().optional(),
-  }).optional(),
-  cache: z.object({
-    ttl: z.number(),
-    cached_at: z.string(),
-  }).optional(),
+  data: z
+    .object({
+      reviews: z.array(ReviewSchema),
+      pagination: PaginationSchema,
+      company: CompanySchema,
+    })
+    .optional(),
+  error: z
+    .object({
+      code: z.string(),
+      message: z.string(),
+      details: z.any().optional(),
+    })
+    .optional(),
+  cache: z
+    .object({
+      ttl: z.number(),
+      cached_at: z.string(),
+    })
+    .optional(),
 });
 
 export const CarrouselConfigSchema = z.object({

@@ -1,0 +1,102 @@
+{
+  "name": "trustpilot-iframe-widget",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "Easy-to-use Trustpilot iframe widget with automatic resizing and CDN support",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "unpkg": "dist/vanilla.min.js",
+  "jsdelivr": "dist/vanilla.min.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./vanilla": {
+      "import": "./dist/vanilla.umd.js",
+      "require": "./dist/vanilla.umd.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest",
+    "lint": "eslint src/**/*.{js,ts}",
+    "lint:fix": "eslint src/**/*.{js,ts} --fix",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "trustpilot",
+    "iframe",
+    "widget",
+    "reviews",
+    "carousel",
+    "resizer",
+    "responsive",
+    "embed",
+    "cdn"
+  ],
+  "author": "Eduardo Airaldi",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eduair94/trustpilot-carrousel.git",
+    "directory": "packages/trustpilot-iframe"
+  },
+  "bugs": {
+    "url": "https://github.com/eduair94/trustpilot-carrousel/issues"
+  },
+  "homepage": "https://github.com/eduair94/trustpilot-carrousel/tree/master/packages/trustpilot-iframe#readme",
+  "funding": {
+    "type": "individual",
+    "url": "https://trustpilot.checkleaked.com"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "iframe-resizer": "^4.3.9"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/iframe-resizer": "^4.0.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.0.0",
+    "jest": "^30.0.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.28.1",
+    "rollup-plugin-dts": "^6.1.1",
+    "typescript": "^5.0.0"
+  }
+}

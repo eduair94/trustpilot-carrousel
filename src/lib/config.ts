@@ -43,8 +43,7 @@ export const DEFAULT_CONFIG: Required<CarrouselConfig> = {
 // ============================================
 
 export const API_CONFIG = {
-  baseUrl:
-    process.env.EXTERNAL_API_BASE_URL || 'https://trustpilot.digitalshopuy.com',
+  baseUrl: process.env.EXTERNAL_API_BASE_URL,
   timeout: 10000, // 10 seconds
   retries: 3,
   cache: {

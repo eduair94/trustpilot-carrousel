@@ -515,7 +515,15 @@ class TrustpilotServerClient {
       // Log cache stats periodically
       if (Math.random() < 0.1) {
         // 10% chance to log stats
-        const stats = (cache as { getStats?(): { items: number; memoryUsageMB: number; maxMemoryMB: number } }).getStats?.();
+        const stats = (
+          cache as {
+            getStats?(): {
+              items: number;
+              memoryUsageMB: number;
+              maxMemoryMB: number;
+            };
+          }
+        ).getStats?.();
         if (stats) {
           console.log(
             `[TrustpilotServer] Cache stats: ${stats.items} items, ` +

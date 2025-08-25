@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Test - Trustpilot Iframe Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 40px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .test-title {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .widget-container {
+            width: 100%;
+            margin: 20px 0;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .controls button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            border-radius: 0 4px 4px 0;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Trustpilot Iframe Widget - Integration Test</h1>
+    <p>This page tests all the key functionality of the Trustpilot Iframe Widget package to ensure everything is working correctly before publication.</p>
+
+    <!-- Test 1: Auto-initialization from data attributes -->
+    <div class="test-section">
+        <h2 class="test-title">Test 1: Auto-Initialization (Data Attributes)</h2>
+        <p>This widget should automatically initialize when the page loads:</p>
+        <div 
+            class="widget-container"
+            data-trustpilot-domain="example.com"
+            data-theme="light"
+            data-autoplay="true"
+            data-max-reviews="5"
+            data-height="300"
+            data-title="Auto-initialized Reviews">
+        </div>
+        <div class="status" id="auto-status">Status: Waiting for auto-initialization...</div>
+    </div>
+
+    <!-- Test 2: Manual initialization -->
+    <div class="test-section">
+        <h2 class="test-title">Test 2: Manual Initialization</h2>
+        <p>Click the button to manually create a widget:</p>
+        <div class="controls">
+            <button onclick="createManualWidget()">Create Manual Widget</button>
+            <button onclick="destroyManualWidget()">Destroy Widget</button>
+        </div>
+        <div class="widget-container" id="manual-container"></div>
+        <div class="status" id="manual-status">Status: Ready to create widget</div>
+    </div>
+
+    <!-- Test 3: Configuration updates -->
+    <div class="test-section">
+        <h2 class="test-title">Test 3: Dynamic Configuration Updates</h2>
+        <p>Create a widget and then update its configuration:</p>
+        <div class="controls">
+            <button onclick="createConfigWidget()">Create Widget</button>
+            <button onclick="updateTheme()">Toggle Theme</button>
+            <button onclick="updateDomain()">Change Domain</button>
+            <button onclick="toggleAutoplay()">Toggle Autoplay</button>
+        </div>
+        <div class="widget-container" id="config-container"></div>
+        <div class="status" id="config-status">Status: Ready to create widget</div>
+        <pre id="config-display">Current Config: None</pre>
+    </div>
+
+    <!-- Test 4: Error handling -->
+    <div class="test-section">
+        <h2 class="test-title">Test 4: Error Handling</h2>
+        <p>Test various error conditions:</p>
+        <div class="controls">
+            <button onclick="createInvalidDomainWidget()">Invalid Domain</button>
+            <button onclick="createInvalidTargetWidget()">Invalid Target</button>
+        </div>
+        <div class="widget-container" id="error-container"></div>
+        <div class="status" id="error-status">Status: Ready to test errors</div>
+    </div>
+
+    <!-- Test 5: Multiple widgets -->
+    <div class="test-section">
+        <h2 class="test-title">Test 5: Multiple Widgets</h2>
+        <p>Create multiple widgets with different configurations:</p>
+        <div class="controls">
+            <button onclick="createMultipleWidgets()">Create Multiple Widgets</button>
+            <button onclick="destroyMultipleWidgets()">Destroy All</button>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="widget-container" id="multi-container-1"></div>
+            <div class="widget-container" id="multi-container-2"></div>
+        </div>
+        <div class="status" id="multi-status">Status: Ready to create multiple widgets</div>
+    </div>
+
+    <!-- Load the CDN version -->
+    <script src="./dist/vanilla.min.js"></script>
+    
+    <script>
+        // Global variables for testing
+        let manualWidget = null;
+        let configWidget = null;
+        let multipleWidgets = [];
+
+        // Test 1: Auto-initialization status
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if auto-initialization worked
+            setTimeout(() => {
+                const autoContainer = document.querySelector('[data-trustpilot-domain]');
+                const hasIframe = autoContainer.querySelector('iframe');
+                const status = document.getElementById('auto-status');
+                
+                if (hasIframe) {
+                    status.innerHTML = '✅ Status: Auto-initialization successful - iframe created';
+                    status.style.background = '#d4edda';
+                    status.style.borderColor = '#28a745';
+                } else {
+                    status.innerHTML = '❌ Status: Auto-initialization failed - no iframe found';
+                    status.style.background = '#f8d7da';
+                    status.style.borderColor = '#dc3545';
+                }
+            }, 2000);
+        });
+
+        // Test 2: Manual widget creation
+        function createManualWidget() {
+            try {
+                if (manualWidget) {
+                    manualWidget.destroy();
+                }
+                
+                manualWidget = new TrustpilotWidget({
+                    target: '#manual-container',
+                    domain: 'example.com',
+                    theme: 'dark',
+                    autoplay: false,
+                    maxReviews: 8,
+                    height: 350,
+                    onReady: () => {
+                        document.getElementById('manual-status').innerHTML = '✅ Status: Manual widget created successfully';
+                        document.getElementById('manual-status').style.background = '#d4edda';
+                        document.getElementById('manual-status').style.borderColor = '#28a745';
+                    },
+                    onError: (error) => {
+                        document.getElementById('manual-status').innerHTML = `❌ Status: Error - ${error}`;
+                        document.getElementById('manual-status').style.background = '#f8d7da';
+                        document.getElementById('manual-status').style.borderColor = '#dc3545';
+                    }
+                });
+                
+                document.getElementById('manual-status').innerHTML = '⏳ Status: Creating manual widget...';
+                document.getElementById('manual-status').style.background = '#fff3cd';
+                document.getElementById('manual-status').style.borderColor = '#ffc107';
+            } catch (error) {
+                document.getElementById('manual-status').innerHTML = `❌ Status: Exception - ${error.message}`;
+                document.getElementById('manual-status').style.background = '#f8d7da';
+                document.getElementById('manual-status').style.borderColor = '#dc3545';
+            }
+        }
+
+        function destroyManualWidget() {
+            if (manualWidget) {
+                manualWidget.destroy();
+                manualWidget = null;
+                document.getElementById('manual-status').innerHTML = '🗑️ Status: Widget destroyed';
+                document.getElementById('manual-status').style.background = '#f8f9fa';
+                document.getElementById('manual-status').style.borderColor = '#007bff';
+            }
+        }
+
+        // Test 3: Configuration updates
+        function createConfigWidget() {
+            try {
+                if (configWidget) {
+                    configWidget.destroy();
+                }
+                
+                configWidget = new TrustpilotWidget({
+                    target: '#config-container',
+                    domain: 'example.com',
+                    theme: 'light',
+                    autoplay: true,
+                    maxReviews: 6,
+                    onReady: () => {
+                        document.getElementById('config-status').innerHTML = '✅ Status: Config widget ready';
+                        updateConfigDisplay();
+                    }
+                });
+                
+                document.getElementById('config-status').innerHTML = '⏳ Status: Creating config widget...';
+            } catch (error) {
+                document.getElementById('config-status').innerHTML = `❌ Status: Error - ${error.message}`;
+            }
+        }
+
+        function updateTheme() {
+            if (configWidget) {
+                const currentConfig = configWidget.getConfig();
+                const newTheme = currentConfig.theme === 'light' ? 'dark' : 'light';
+                configWidget.updateConfig({ theme: newTheme });
+                updateConfigDisplay();
+                document.getElementById('config-status').innerHTML = `🎨 Status: Theme updated to ${newTheme}`;
+            }
+        }
+
+        function updateDomain() {
+            if (configWidget) {
+                const domains = ['example.com', 'test.com', 'demo.com'];
+                const currentConfig = configWidget.getConfig();
+                const currentIndex = domains.indexOf(currentConfig.domain);
+                const newDomain = domains[(currentIndex + 1) % domains.length];
+                configWidget.updateConfig({ domain: newDomain });
+                updateConfigDisplay();
+                document.getElementById('config-status').innerHTML = `🌐 Status: Domain updated to ${newDomain}`;
+            }
+        }
+
+        function toggleAutoplay() {
+            if (configWidget) {
+                const currentConfig = configWidget.getConfig();
+                const newAutoplay = !currentConfig.autoplay;
+                configWidget.updateConfig({ autoplay: newAutoplay });
+                updateConfigDisplay();
+                document.getElementById('config-status').innerHTML = `⏯️ Status: Autoplay ${newAutoplay ? 'enabled' : 'disabled'}`;
+            }
+        }
+
+        function updateConfigDisplay() {
+            if (configWidget) {
+                const config = configWidget.getConfig();
+                document.getElementById('config-display').textContent = 
+                    `Current Config: ${JSON.stringify(config, null, 2)}`;
+            }
+        }
+
+        // Test 4: Error handling
+        function createInvalidDomainWidget() {
+            try {
+                const errorWidget = new TrustpilotWidget({
+                    target: '#error-container',
+                    domain: 'invalid-domain!@#',
+                    onError: (error) => {
+                        document.getElementById('error-status').innerHTML = `✅ Status: Error correctly caught - ${error}`;
+                        document.getElementById('error-status').style.background = '#d4edda';
+                        document.getElementById('error-status').style.borderColor = '#28a745';
+                    }
+                });
+            } catch (error) {
+                document.getElementById('error-status').innerHTML = `✅ Status: Exception correctly thrown - ${error.message}`;
+                document.getElementById('error-status').style.background = '#d4edda';
+                document.getElementById('error-status').style.borderColor = '#28a745';
+            }
+        }
+
+        function createInvalidTargetWidget() {
+            try {
+                const errorWidget = new TrustpilotWidget({
+                    target: '#non-existent-element',
+                    domain: 'example.com'
+                });
+            } catch (error) {
+                document.getElementById('error-status').innerHTML = `✅ Status: Invalid target error correctly caught - ${error.message}`;
+                document.getElementById('error-status').style.background = '#d4edda';
+                document.getElementById('error-status').style.borderColor = '#28a745';
+            }
+        }
+
+        // Test 5: Multiple widgets
+        function createMultipleWidgets() {
+            try {
+                // Clean up existing widgets
+                destroyMultipleWidgets();
+                
+                // Create first widget
+                const widget1 = new TrustpilotWidget({
+                    target: '#multi-container-1',
+                    domain: 'example.com',
+                    theme: 'light',
+                    maxReviews: 5,
+                    onReady: () => {
+                        document.getElementById('multi-status').innerHTML = '✅ Status: Multiple widgets created successfully';
+                        document.getElementById('multi-status').style.background = '#d4edda';
+                        document.getElementById('multi-status').style.borderColor = '#28a745';
+                    }
+                });
+                
+                // Create second widget
+                const widget2 = new TrustpilotWidget({
+                    target: '#multi-container-2',
+                    domain: 'test.com',
+                    theme: 'dark',
+                    maxReviews: 7,
+                    autoplay: false
+                });
+                
+                multipleWidgets = [widget1, widget2];
+                document.getElementById('multi-status').innerHTML = '⏳ Status: Creating multiple widgets...';
+                
+            } catch (error) {
+                document.getElementById('multi-status').innerHTML = `❌ Status: Error creating multiple widgets - ${error.message}`;
+                document.getElementById('multi-status').style.background = '#f8d7da';
+                document.getElementById('multi-status').style.borderColor = '#dc3545';
+            }
+        }
+
+        function destroyMultipleWidgets() {
+            multipleWidgets.forEach(widget => {
+                if (widget) {
+                    widget.destroy();
+                }
+            });
+            multipleWidgets = [];
+            document.getElementById('multi-status').innerHTML = '🗑️ Status: All widgets destroyed';
+            document.getElementById('multi-status').style.background = '#f8f9fa';
+            document.getElementById('multi-status').style.borderColor = '#007bff';
+        }
+
+        // Console logging for debugging
+        console.log('Integration test page loaded');
+        console.log('TrustpilotWidget available:', typeof TrustpilotWidget !== 'undefined');
+        console.log('createTrustpilotWidget available:', typeof createTrustpilotWidget !== 'undefined');
+        console.log('autoInit available:', typeof autoInit !== 'undefined');
+    </script>
+</body>
+</html>

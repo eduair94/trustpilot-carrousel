@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Trustpilot Widget — CDN Demo</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .demo-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        border-left: 4px solid #007bff;
+      }
+      .widget-container {
+        margin: 30px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎉 Trustpilot Widget — Published CDN Demo</h1>
+
+    <div class="demo-info">
+      <h3>📦 Using Published NPM Package</h3>
+      <p>
+        <strong>Package:</strong> <code>trustpilot-iframe-widget@1.0.0</code>
+      </p>
+      <p>
+        <strong>CDN:</strong>
+        <code
+          >https://unpkg.com/trustpilot-iframe-widget@1.0.0/dist/vanilla.min.js</code
+        >
+      </p>
+      <p>
+        <strong>Repository:</strong>
+        <a
+          href="https://github.com/eduair94/trustpilot-carrousel"
+          target="_blank"
+          >https://github.com/eduair94/trustpilot-carrousel</a
+        >
+      </p>
+      <p>
+        <strong>Commercial Services:</strong>
+        <a href="https://trustpilot.checkleaked.com" target="_blank"
+          >https://trustpilot.checkleaked.com</a
+        >
+      </p>
+      <p>
+        <strong>Published:</strong> Successfully published to npm registry ✅
+      </p>
+      <p>
+        <strong>⭐ Star us:</strong>
+        <a
+          href="https://github.com/eduair94/trustpilot-carrousel"
+          target="_blank"
+          >Give us a star on GitHub!</a
+        >
+      </p>
+    </div>
+
+    <div class="widget-container">
+      <h3>Auto-Initialized Widget</h3>
+      <p>This widget loads automatically using data attributes:</p>
+
+      <div
+        data-trustpilot-domain="www.google.com"
+        data-theme="light"
+        data-max-reviews="5"
+        data-show-rating="true"
+        data-show-date="true"
+        data-show-avatar="true"
+        data-autoplay="false"
+        data-interval="5000"
+        data-height="400"
+        data-title="Google Reviews"
+      ></div>
+    </div>
+
+    <div class="widget-container">
+      <h3>Manual Widget Creation</h3>
+      <p>Click the button to create a widget programmatically:</p>
+      <button
+        onclick="createWidget()"
+        style="
+          padding: 10px 20px;
+          background: #007bff;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        "
+      >
+        Create Widget
+      </button>
+      <div id="manual-widget" style="margin-top: 20px"></div>
+    </div>
+
+    <!-- Load from published CDN -->
+    <script src="https://unpkg.com/trustpilot-iframe-widget@1.0.0/dist/vanilla.min.js"></script>
+
+    <script>
+      function createWidget() {
+        const container = document.getElementById('manual-widget');
+        container.innerHTML = ''; // Clear existing widget
+
+        try {
+          const widget = new TrustpilotWidget({
+            target: '#manual-widget',
+            domain: 'example.com',
+            theme: 'dark',
+            maxReviews: 8,
+            autoplay: true,
+            interval: 3000,
+            height: 350,
+            onReady: () => {
+              console.log('Manual widget ready!');
+            },
+            onError: error => {
+              console.error('Widget error:', error);
+            },
+          });
+        } catch (error) {
+          console.error('Failed to create widget:', error);
+          container.innerHTML =
+            '<div style="color: red; padding: 10px;">Error: ' +
+            error.message +
+            '</div>';
+        }
+      }
+
+      // Log success
+      console.log('✅ CDN Demo loaded successfully');
+      console.log('📦 Package: trustpilot-iframe-widget@1.0.0');
+      console.log(
+        '🔗 Repository: https://github.com/eduair94/trustpilot-carrousel'
+      );
+    </script>
+  </body>
+</html>

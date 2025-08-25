@@ -317,4 +317,4 @@ export const cache = createCache<unknown>(
 );
 
 // Export classes for custom usage
-export { SimpleCache, RedisCache, createCache };
+export { RedisCache, SimpleCache, createCache };

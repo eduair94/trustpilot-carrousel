@@ -71,7 +71,7 @@ docker run -p 3000:3000 trustpilot-carrousel
 ```env
 # .env.local
 TRUSTPILOT_API_KEY=your_api_key_if_needed
-EXTERNAL_API_BASE_URL=https://trustpilot.digitalshopuy.com
+EXTERNAL_API_BASE_URL=https://trustpilot.checkleaked.com
 CACHE_TTL_SECONDS=300
 RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX_REQUESTS=100
@@ -268,7 +268,7 @@ src/
 
 ```env
 NODE_ENV=production
-EXTERNAL_API_BASE_URL=https://trustpilot.digitalshopuy.com
+EXTERNAL_API_BASE_URL=https://trustpilot.checkleaked.com
 CACHE_TTL_SECONDS=300
 RATE_LIMIT_MAX_REQUESTS=100
 ALLOWED_ORIGINS=https://example.com,https://another.com
